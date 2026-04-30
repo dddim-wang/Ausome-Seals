@@ -271,8 +271,6 @@ const coopImages = [
 ];
 
 function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
-  const closeMenu = () => setMobileMenuOpen(false);
-
   return (
     <header className="site-header">
       <div className="container nav">
@@ -286,29 +284,23 @@ function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
 
         <button
           className="mobile-menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => setMobileMenuOpen((open) => !open)}
           aria-label="Toggle navigation menu"
           type="button"
         >
-          {mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}
+          {mobileMenuOpen ? (
+            <X size={19} strokeWidth={1.8} />
+          ) : (
+            <Menu size={19} strokeWidth={1.8} />
+          )}
         </button>
 
-        <nav className={mobileMenuOpen ? "nav-links open" : "nav-links"}>
-          <a href="#products" onClick={closeMenu}>
-            {t.navProducts}
-          </a>
-          <a href="#applications" onClick={closeMenu}>
-            {t.navApplications}
-          </a>
-          <a href="#cooperation" onClick={closeMenu}>
-            {t.navCooperation}
-          </a>
-          <a href="#about" onClick={closeMenu}>
-            {t.navAbout}
-          </a>
-          <a href="#contact" className="nav-cta" onClick={closeMenu}>
-            {t.navContact}
-          </a>
+        <nav className="desktop-nav-links">
+          <a href="#products">{t.navProducts}</a>
+          <a href="#applications">{t.navApplications}</a>
+          <a href="#cooperation">{t.navCooperation}</a>
+          <a href="#about">{t.navAbout}</a>
+          <a href="#contact" className="nav-cta">{t.navContact}</a>
         </nav>
       </div>
     </header>
@@ -678,6 +670,10 @@ function App() {
     setLang((current) => (current === "en" ? "zh" : "en"));
   };
 
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   const t = translations[lang];
 
   return (
@@ -685,11 +681,19 @@ function App() {
       {mobileMenuOpen && (
         <button
           className="menu-backdrop"
-          onClick={() => setMobileMenuOpen(false)}
+          onClick={closeMobileMenu}
           type="button"
-          aria-label="Close menu"
+          aria-label="Close navigation menu"
         />
       )}
+
+      <nav className={mobileMenuOpen ? "mobile-nav-drawer open" : "mobile-nav-drawer"}>
+        <a href="#products" onClick={closeMobileMenu}>{t.navProducts}</a>
+        <a href="#applications" onClick={closeMobileMenu}>{t.navApplications}</a>
+        <a href="#cooperation" onClick={closeMobileMenu}>{t.navCooperation}</a>
+        <a href="#about" onClick={closeMobileMenu}>{t.navAbout}</a>
+        <a href="#contact" className="nav-cta" onClick={closeMobileMenu}>{t.navContact}</a>
+      </nav>
 
       <Header
         t={t}
