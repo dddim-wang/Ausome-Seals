@@ -687,9 +687,10 @@ footer {
   }
 
   .brand-logo {
-    width: 170px;
-    max-height: auto;
+    width: 180px;
+    height: auto;
     object-fit: contain;
+    transform: translateX(-10px) translateY(-0px);
   }
 
   .brand strong {
@@ -727,7 +728,7 @@ footer {
     display: flex;
     position: fixed;
     top: 0;
-    bottom: 2;
+    bottom: 100;
     right: -230px;
     width: 310px;
     height: auto;
