@@ -83,12 +83,25 @@ a {
   margin-top: 2px;
 }
 
-nav {
+.nav-links {
   display: flex;
   align-items: center;
   gap: 24px;
   color: #344054;
   font-size: 15px;
+}
+
+.mobile-menu-button {
+  display: none;
+  border: none;
+  background: var(--primary);
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .nav-cta {
@@ -483,8 +496,64 @@ footer {
 }
 
 @media (max-width: 980px) {
-  nav {
+  .nav {
+    position: relative;
+    height: 78px;
+    min-height: 86px;
+    padding: 14px 0;
+  }
+
+  .brand-logo {
+    width: 200px;
+  }
+
+  .mobile-menu-button {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  .nav-links {
     display: none;
+    position: absolute;
+    top: 78px;
+    right: 0;
+    width: 210px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(16, 24, 39, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 18px 36px rgba(16, 24, 39, 0.14);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    z-index: 99;
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: transparent;
+    color: #17386f;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .nav-links a:hover {
+    background: #f0f5ff;
+  }
+
+  .nav-links .nav-cta {
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    margin-top: 4px;
   }
 
   .hero-grid,
@@ -496,7 +565,8 @@ footer {
   }
 
   .stats,
-  .application-grid {
+  .application-grid,
+  .factory-grid {
     grid-template-columns: 1fr;
   }
 
@@ -504,12 +574,112 @@ footer {
     min-height: 420px;
   }
 
+  .product-image,
+  .factory-image {
+    height: 220px;
+  }
+
+  .coop-track {
+    gap: 16px;
+    animation-duration: 28s;
+  }
+
+  .coop-card {
+    width: 150px;
+    height: 150px;
+  }
+
   .footer-content {
     flex-direction: column;
     align-items: flex-start;
   }
+}
 
-  .brand-logo {
-    width: 120px;
+.product-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  display: block;
+}
+
+.factory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.factory-image {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(16, 24, 39, 0.08);
+}
+
+.cooperation-section {
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.coop-slider {
+  width: 100%;
+  overflow: hidden;
+  padding: 10px 0 20px;
+}
+
+.coop-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: coop-scroll 38s linear infinite;
+}
+
+.coop-slider:hover .coop-track {
+  animation-play-state: paused;
+}
+
+.coop-card {
+  width: 180px;
+  height: 180px;
+  flex: 0 0 auto;
+  border-radius: 20px;
+  background: #f7faff;
+  border: 1px solid rgba(16, 24, 39, 0.08);
+  box-shadow: 0 12px 30px rgba(16, 24, 39, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.coop-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 18px;
+}
+
+@keyframes coop-scroll {
+  from {
+    transform: translateX(0);
   }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.logo-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.logo-button:hover {
+  opacity: 0.85;
 }
