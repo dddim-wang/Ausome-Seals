@@ -114,7 +114,7 @@ const translations = {
     errorMessage: "Unable to send right now. Please check backend connection.",
 
     email: "ausomeseals@gmail.com",
-    phone: "+86-137-7661-6519",
+    phone: "+86 137-7661-6519",
     location: "China / Global Industrial Customers",
 
     footerRights: "All rights reserved.",
@@ -158,7 +158,7 @@ const translations = {
     navContact: "联系我们",
 
     heroEyebrow: "面向钢铁行业液压系统的专业密封解决方案",
-    heroTitle: "适用于严苛钢铁生产系统的密封产品。",
+    heroTitle: "奥斯姆科技有限公司 - 生成适用于严苛钢铁生产系统的密封产品。",
     heroText:
       "Ausome Seals Technology 为液压闸机系统、液压缸以及重型钢铁生产设备提供工业密封解决方案。我们专注于产品耐久性、泄漏控制以及复杂工况下的稳定运行表现。",
     viewProducts: "查看产品",
@@ -216,7 +216,7 @@ const translations = {
     errorMessage: "暂时无法发送，请检查后端连接。",
 
     email: "ausomeseals@gmail.com",
-    phone: "+86-137-7661-6519",
+    phone: "+86 137-7661-6519",
     location: "中国 / 全球工业客户",
 
     footerRights: "版权所有。",
@@ -270,7 +270,7 @@ const coopImages = [
   coop15,
 ];
 
-function Header({ t, toggleLanguage }) {
+function Header({ t }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const closeMenu = () => setMobileMenuOpen(false);
@@ -279,15 +279,7 @@ function Header({ t, toggleLanguage }) {
     <header className="site-header">
       <div className="container nav">
         <div className="brand">
-          <button
-            className="logo-button"
-            onClick={toggleLanguage}
-            title="Switch language"
-            type="button"
-          >
-            <img src={logo} alt="Ausome logo" className="brand-logo" />
-          </button>
-
+          <img src={logo} alt="Ausome logo" className="brand-logo" />
           <div>
             <strong>Seals Technology</strong>
             <span>{t.brandSubtitle}</span>
@@ -300,7 +292,7 @@ function Header({ t, toggleLanguage }) {
           aria-label="Toggle navigation menu"
           type="button"
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
 
         <nav className={mobileMenuOpen ? "nav-links open" : "nav-links"}>
@@ -326,6 +318,18 @@ function Header({ t, toggleLanguage }) {
 }
 
 function Hero({ t }) {
+  const [ringClicks, setRingClicks] = useState(0);
+
+  const handleRingClick = () => {
+    const nextClicks = ringClicks + 1;
+    setRingClicks(nextClicks);
+
+    if (nextClicks >= 7) {
+      window.open("https://userinyerface.com/", "_blank");
+      setRingClicks(0);
+    }
+  };
+
   return (
     <section className="hero">
       <div className="container hero-grid">
@@ -368,7 +372,12 @@ function Hero({ t }) {
 
           <div className="diagram">
             <div className="gate gate-top"></div>
-            <div className="seal-ring"></div>
+            <button
+              className="seal-ring secret-ring"
+              onClick={handleRingClick}
+              type="button"
+              aria-label="Open hidden link"
+            />
             <div className="gate gate-bottom"></div>
           </div>
 
@@ -649,6 +658,20 @@ function Footer({ t }) {
   );
 }
 
+function LanguageToggle({ lang, toggleLanguage }) {
+  return (
+    <button
+      className="language-toggle"
+      onClick={toggleLanguage}
+      type="button"
+      aria-label="Switch language"
+      title="Switch language"
+    >
+      {lang === "en" ? "中文" : "EN"}
+    </button>
+  );
+}
+
 function App() {
   const [lang, setLang] = useState("en");
 
@@ -660,7 +683,7 @@ function App() {
 
   return (
     <>
-      <Header t={t} toggleLanguage={toggleLanguage} />
+      <Header t={t} />
       <Hero t={t} />
       <FactorySection t={t} />
       <ProductSection t={t} />
@@ -669,6 +692,7 @@ function App() {
       <AboutSection t={t} />
       <ContactSection t={t} />
       <Footer t={t} />
+      <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
     </>
   );
 }
