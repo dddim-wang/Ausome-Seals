@@ -295,6 +295,15 @@ function Header({ t }) {
           {mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
 
+        {mobileMenuOpen && (
+          <button
+            className="menu-backdrop"
+            onClick={closeMenu}
+            type="button"
+            aria-label="Close menu"
+          />
+        )}
+
         <nav className={mobileMenuOpen ? "nav-links open" : "nav-links"}>
           <a href="#products" onClick={closeMenu}>
             {t.navProducts}
