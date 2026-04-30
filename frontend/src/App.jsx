@@ -270,9 +270,7 @@ const coopImages = [
   coop15,
 ];
 
-function Header({ t }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
   const closeMenu = () => setMobileMenuOpen(false);
 
   return (
@@ -294,15 +292,6 @@ function Header({ t }) {
         >
           {mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
-
-        {mobileMenuOpen && (
-          <button
-            className="menu-backdrop"
-            onClick={closeMenu}
-            type="button"
-            aria-label="Close menu"
-          />
-        )}
 
         <nav className={mobileMenuOpen ? "nav-links open" : "nav-links"}>
           <a href="#products" onClick={closeMenu}>
@@ -683,6 +672,7 @@ function LanguageToggle({ lang, toggleLanguage }) {
 
 function App() {
   const [lang, setLang] = useState("en");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleLanguage = () => {
     setLang((current) => (current === "en" ? "zh" : "en"));
@@ -692,7 +682,21 @@ function App() {
 
   return (
     <>
-      <Header t={t} />
+      {mobileMenuOpen && (
+        <button
+          className="menu-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+          type="button"
+          aria-label="Close menu"
+        />
+      )}
+
+      <Header
+        t={t}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      />
+
       <Hero t={t} />
       <FactorySection t={t} />
       <ProductSection t={t} />
