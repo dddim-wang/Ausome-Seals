@@ -22,9 +22,34 @@ import product1 from "./assets/products/product1.jpg";
 import product2 from "./assets/products/product2.jpg";
 import product3 from "./assets/products/product3.jpg";
 
+// Factory images
 import factory1 from "./assets/factory/factory1.jpg";
 import factory2 from "./assets/factory/factory2.jpg";
 import factory3 from "./assets/factory/factory3.jpg";
+import factory4 from "./assets/factory/factory4.jpg";
+import factory5 from "./assets/factory/factory5.jpg";
+import factory6 from "./assets/factory/factory6.jpg";
+import factory7 from "./assets/factory/factory7.jpg";
+import factory8 from "./assets/factory/factory8.jpg";
+import factory9 from "./assets/factory/factory9.jpg";
+import factory10 from "./assets/factory/factory10.jpg";
+
+// Lab images
+import lab1 from "./assets/factory/lab1.jpg";
+import lab2 from "./assets/factory/lab2.jpg";
+import lab3 from "./assets/factory/lab3.jpg";
+import lab4 from "./assets/factory/lab4.jpg";
+import lab5 from "./assets/factory/lab5.jpg";
+import lab6 from "./assets/factory/lab6.jpg";
+import lab7 from "./assets/factory/lab7.jpg";
+import lab8 from "./assets/factory/lab8.jpg";
+import lab9 from "./assets/factory/lab9.jpg";
+import lab10 from "./assets/factory/lab10.jpg";
+import lab11 from "./assets/factory/lab11.jpg";
+
+// Office images
+import office1 from "./assets/factory/office1.jpg";
+import office2 from "./assets/factory/office2.jpg";
 
 import coop1 from "./assets/coop/coop1.png";
 import coop2 from "./assets/coop/coop2.jpg";
@@ -48,62 +73,50 @@ const translations = {
   en: {
     brandName: "Seals Technology",
     brandSubtitle: "Industrial Sealing Solutions",
-
     navProducts: "Products",
     navApplications: "Applications",
     navCooperation: "Cooperation",
     navAbout: "About",
     navContact: "Contact",
-
     heroEyebrow: "Professional sealing solutions for steel industry hydraulics",
     heroTitle: "Sealing products for demanding steel production systems.",
-    heroText:
-      "Ausome Seals Technology provides industrial sealing solutions for hydraulic gate systems, cylinders, and heavy-duty steel production equipment. We focus on durability, leakage control, and dependable performance in challenging operating conditions.",
+    heroText: "Ausome Seals Technology provides industrial sealing solutions for hydraulic gate systems, cylinders, and heavy-duty steel production equipment. We focus on durability, leakage control, and dependable performance in challenging operating conditions.",
     viewProducts: "View Products",
     requestQuote: "Request a Quote",
-
     steel: "Steel",
     industryFocus: "Industry Focus",
     custom: "Custom",
     sealDesign: "Seal Design",
     b2b: "B2B",
     technicalSupport: "Technical Support",
-
     heroCardTitle: "Built for harsh production conditions",
-    heroCardText:
-      "Designed for hydraulic equipment exposed to pressure cycling, abrasive environments, oil contamination, and continuous operation.",
+    heroCardText: "Designed for hydraulic equipment exposed to pressure cycling, abrasive environments, oil contamination, and continuous operation.",
 
-    factoryLabel: "Manufacturing",
     factoryTitle: "Production Environment & Factory Strength",
-    factoryText:
-      "Ausome Seals Technology focuses on industrial sealing solutions with reliable manufacturing capability, quality control, and technical support.",
+    factoryText: "Ausome Seals Technology focuses on industrial sealing solutions with reliable manufacturing capability, quality control, and technical support.",
 
-    productsLabel: "Product Portfolio",
+    labTitle: "Laboratory & Testing Facilities",
+    labText: "Our laboratories ensure quality control and advanced testing capabilities.",
+
+    officeTitle: "Office & Meeting Rooms",
+    officeText: "Our office environment supports administration, planning, and client meetings.",
+
     productsTitle: "Industrial seals engineered for uptime",
-    productsText:
-      "Core products can be adapted by material, profile, diameter, operating pressure, and equipment interface.",
+    productsText: "Core products can be adapted by material, profile, diameter, operating pressure, and equipment interface.",
 
-    applicationsLabel: "Applications",
     applicationsTitle: "For steel manufacturing and heavy hydraulic equipment",
-    applicationsText:
-      "Our sealing products are suitable for demanding hydraulic gate and cylinder applications across steel processing operations.",
-    pressureReview: "Pressure and operating condition review",
-    customSizing: "Custom sizing and profile adaptation",
+    applicationsText: "Our sealing products are suitable for demanding hydraulic gate and cylinder applications across steel processing operations.",
 
-    cooperationLabel: "Cooperation",
     cooperationTitle: "Trusted by industrial partners",
-    cooperationText:
-      "We support steel production, hydraulic equipment, and heavy industry customers with reliable sealing products and technical service.",
+    cooperationText: "We support steel production, hydraulic equipment, and heavy industry customers with reliable sealing products and technical service.",
 
     aboutLabel: "About Ausome",
     aboutTitle: "Focused on practical sealing performance for industrial clients.",
-    aboutText:
-      "Ausome Seals Technology serves steel production and heavy industrial customers with hydraulic sealing products developed for durability, stable operation, and maintainability. We help customers reduce leakage risk, extend equipment service intervals, and improve system reliability.",
+    aboutText: "Ausome Seals Technology serves steel production and heavy industrial customers with hydraulic sealing products developed for durability, stable operation, and maintainability. We help customers reduce leakage risk, extend equipment service intervals, and improve system reliability.",
 
     contactLabel: "Contact",
     contactTitle: "Request technical consultation or quotation",
-    contactText:
-      "Send your equipment type, seal dimensions, operating pressure, temperature, medium, and quantity requirement.",
+    contactText: "Send your equipment type, seal dimensions, operating pressure, temperature, medium, and quantity requirement.",
     namePlaceholder: "Your name",
     companyPlaceholder: "Company",
     emailPlaceholder: "Email",
@@ -116,96 +129,85 @@ const translations = {
     email: "ausomeseals@gmail.com",
     phone: "+86 137-7661-6519",
     location: "China / Global Industrial Customers",
-
     footerRights: "All rights reserved.",
 
     products: [
-      {
-        title: "Hydraulic Gate Seals",
-        desc: "High-strength sealing components for hydraulic gate systems used in steel production lines.",
-        features: ["Pressure-resistant", "Wear-resistant", "Custom dimensions"],
-      },
-      {
-        title: "Cylinder & Rod Seals",
-        desc: "Precision seals for hydraulic cylinders, rods, and heavy-duty industrial motion systems.",
-        features: ["Stable performance", "Low leakage", "Long service life"],
-      },
-      {
-        title: "Guide Rings & Wipers",
-        desc: "Supporting seal components for alignment, contamination control, and system protection.",
-        features: ["Reduced friction", "Dust protection", "Reliable guidance"],
-      },
-    ],
-
+  {
+    title: "Hydraulic Gate Seals",
+    desc: "High-strength sealing components for hydraulic gate systems used in steel production lines.",
+    features: ["Pressure-resistant", "Wear-resistant", "Custom dimensions"],
+  },
+  {
+    title: "Cylinder & Rod Seals",
+    desc: "Precision seals for hydraulic cylinders, rods, and heavy-duty industrial motion systems.",
+    features: ["Stable performance", "Low leakage", "Long service life"],
+  },
+  {
+    title: "Guide Rings & Wipers",
+    desc: "Supporting seal components for alignment, contamination control, and system protection.",
+    features: ["Reduced friction", "Dust protection", "Reliable guidance"],
+  },
+],
     applications: [
-      "Steel rolling mills",
-      "Galvanizing lines",
-      "Pickling lines",
-      "Hydraulic gate equipment",
-      "Heavy-duty industrial cylinders",
-      "High-temperature production environments",
-    ],
+  "Steel rolling mills",
+  "Galvanizing lines",
+  "Pickling lines",
+  "Hydraulic gate equipment",
+  "Heavy-duty industrial cylinders",
+  "High-temperature production environments",
+],
   },
 
   zh: {
     brandName: "密封科技",
     brandSubtitle: "工业密封解决方案",
-
     navProducts: "产品",
     navApplications: "应用场景",
     navCooperation: "合作伙伴",
     navAbout: "关于我们",
     navContact: "联系我们",
-
     heroEyebrow: "面向钢铁行业液压系统的专业密封解决方案",
     heroTitle: "奥斯姆科技有限公司 - 生成适用于严苛钢铁生产系统的密封产品。",
-    heroText:
-      "Ausome Seals Technology 为液压闸机系统、液压缸以及重型钢铁生产设备提供工业密封解决方案。我们专注于产品耐久性、泄漏控制以及复杂工况下的稳定运行表现。",
+    heroText: "Ausome Seals Technology 为液压闸机系统、液压缸以及重型钢铁生产设备提供工业密封解决方案。我们专注于产品耐久性、泄漏控制以及复杂工况下的稳定运行表现。",
     viewProducts: "查看产品",
     requestQuote: "获取报价",
-
     steel: "钢铁",
     industryFocus: "行业专注",
     custom: "定制",
     sealDesign: "密封设计",
     b2b: "B2B",
     technicalSupport: "技术支持",
-
     heroCardTitle: "适用于严苛生产工况",
-    heroCardText:
-      "产品适用于承受压力循环、磨损环境、液压油污染以及连续运行要求的液压设备。",
+    heroCardText: "产品适用于承受压力循环、磨损环境、液压油污染以及连续运行要求的液压设备。",
 
-    factoryLabel: "生产制造",
-    factoryTitle: "生产环境与工厂实力",
-    factoryText:
-      "Ausome Seals Technology 专注于工业密封产品，具备可靠的制造能力、质量控制能力和技术支持能力。",
+    factoryTitle: "生产环境",
+    factoryText: "奥斯姆科技有限公司专注于工业密封产品，具备可靠的制造能力、质量控制能力和技术支持能力。",
+
+    labTitle: "实验室与测试设施",
+    labText: "我们的实验室确保质量控制和先进的测试能力。",
+
+    officeTitle: "办公与会议室",
+    officeText: "我们的办公环境支持行政、计划和客户会议。",
 
     productsLabel: "产品系列",
     productsTitle: "为设备稳定运行而设计的工业密封产品",
-    productsText:
-      "核心产品可根据材料、截面形式、尺寸、工作压力以及设备接口进行适配。",
+    productsText: "核心产品可根据材料、截面形式、尺寸、工作压力以及设备接口进行适配。",
 
     applicationsLabel: "应用场景",
     applicationsTitle: "服务于钢铁制造与重型液压设备",
-    applicationsText:
-      "我们的密封产品适用于钢铁加工中的液压闸机、液压缸以及其他严苛工况设备。",
-    pressureReview: "工作压力与工况评估",
-    customSizing: "定制尺寸与截面适配",
+    applicationsText: "我们的密封产品适用于钢铁加工中的液压闸机、液压缸以及其他严苛工况设备。",
 
     cooperationLabel: "合作伙伴",
     cooperationTitle: "受到工业客户与合作伙伴信赖",
-    cooperationText:
-      "我们为钢铁生产、液压设备以及重工业客户提供可靠的密封产品和技术服务。",
+    cooperationText: "我们为钢铁生产、液压设备以及重工业客户提供可靠的密封产品和技术服务。",
 
     aboutLabel: "关于 Ausome",
     aboutTitle: "专注于工业客户实际工况下的密封性能。",
-    aboutText:
-      "Ausome Seals Technology 服务于钢铁生产及重工业客户，提供具备耐久性、稳定性和可维护性的液压密封产品，帮助客户降低泄漏风险、延长设备维护周期并提升系统可靠性。",
+    aboutText: "Ausome Seals Technology 服务于钢铁生产及重工业客户，提供具备耐久性、稳定性和可维护性的液压密封产品，帮助客户降低泄漏风险、延长设备维护周期并提升系统可靠性。",
 
     contactLabel: "联系我们",
     contactTitle: "获取技术咨询或产品报价",
-    contactText:
-      "请提供设备类型、密封尺寸、工作压力、温度、介质以及采购数量需求。",
+    contactText: "请提供设备类型、密封尺寸、工作压力、温度、介质以及采购数量需求。",
     namePlaceholder: "您的姓名",
     companyPlaceholder: "公司名称",
     emailPlaceholder: "邮箱",
@@ -218,7 +220,6 @@ const translations = {
     email: "ausomeseals@gmail.com",
     phone: "+86 137-7661-6519",
     location: "中国 / 全球工业客户",
-
     footerRights: "版权所有。",
 
     products: [
@@ -251,6 +252,10 @@ const translations = {
 };
 
 const productImages = [product1, product2, product3];
+
+const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9, factory10];
+const labImages = [lab1, lab2, lab3, lab4, lab5, lab6, lab7, lab8, lab9, lab10, lab11];
+const officeImages = [office1, office2];
 
 const coopImages = [
   coop1,
@@ -388,11 +393,48 @@ function FactorySection({ t }) {
           <h2>{t.factoryTitle}</h2>
           <p>{t.factoryText}</p>
         </div>
-
         <div className="factory-grid">
-          <img src={factory1} alt="Factory 1" className="factory-image" />
-          <img src={factory2} alt="Factory 2" className="factory-image" />
-          <img src={factory3} alt="Factory 3" className="factory-image" />
+          {factoryImages.map((img, index) => (
+            <img src={img} alt={`Factory ${index + 1}`} key={index} className="factory-image" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LabSection({ t }) {
+  return (
+    <section className="section muted" id="lab">
+      <div className="container">
+        <div className="section-head">
+          <span>{t.labLabel}</span>
+          <h2>{t.labTitle}</h2>
+          <p>{t.labText}</p>
+        </div>
+        <div className="factory-grid">
+          {labImages.map((img, index) => (
+            <img src={img} alt={`Lab ${index + 1}`} key={index} className="factory-image" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function OfficeSection({ t }) {
+  return (
+    <section className="section muted" id="office">
+      <div className="container">
+        <div className="section-head">
+          <span>{t.officeLabel}</span>
+          <h2>{t.officeTitle}</h2>
+          <p>{t.officeText}</p>
+        </div>
+        <div className="factory-grid">
+          {officeImages.map((img, index) => (
+            <img src={img} alt={`Office ${index + 1}`} key={index} className="factory-image" />
+          ))}
         </div>
       </div>
     </section>
@@ -695,14 +737,28 @@ function App() {
         <a href="#contact" className="nav-cta" onClick={closeMobileMenu}>{t.navContact}</a>
       </nav>
 
-      <Header
-        t={t}
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
+      <Header t={t} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
+      <Hero t={t} />
+      <ImageCarousel
+        images={factoryImages}
+        tLabel={t.factoryLabel}
+        tTitle={t.factoryTitle}
+        tText={t.factoryText}
       />
 
-      <Hero t={t} />
-      <FactorySection t={t} />
+      <ImageCarousel
+        images={labImages}
+        tLabel={t.labLabel}
+        tTitle={t.labTitle}
+        tText={t.labText}
+      />
+
+      <ImageCarousel
+        images={officeImages}
+        tLabel={t.officeLabel}
+        tTitle={t.officeTitle}
+        tText={t.officeText}
+      />
       <ProductSection t={t} />
       <ApplicationSection t={t} />
       <CooperationSection t={t} />
@@ -711,6 +767,30 @@ function App() {
       <Footer t={t} />
       <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
     </>
+  );
+}
+
+function ImageCarousel({ images, sectionTitle, sectionText, tLabel, tTitle, tText }) {
+  const [current, setCurrent] = useState(0);
+
+  const prev = () => setCurrent((current - 1 + images.length) % images.length);
+  const next = () => setCurrent((current + 1) % images.length);
+
+  return (
+    <section className="section muted">
+      <div className="container">
+        <div className="section-head">
+          {tLabel && <span>{tLabel}</span>}
+          <h2>{tTitle || sectionTitle}</h2>
+          <p>{tText || sectionText}</p>
+        </div>
+        <div className="carousel-wrapper">
+          <button className="carousel-btn prev" onClick={prev}>&lt;</button>
+          <img src={images[current]} alt={`Slide ${current + 1}`} className="carousel-image" />
+          <button className="carousel-btn next" onClick={next}>&gt;</button>
+        </div>
+      </div>
+    </section>
   );
 }
 
