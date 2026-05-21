@@ -698,6 +698,29 @@ footer {
     overflow-x: hidden;
   }
 
+  .section {
+    padding: 35px 0;
+  }
+
+  .hero {
+    padding: 52px 0 48px;
+  }
+
+  .section-head {
+    margin-bottom: 30px;
+  }
+
+  .section-head h2,
+  .about-grid h2 {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+
+  .section-head p,
+  .about-grid p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
   .nav {
     position: relative;
     height: 76px;
@@ -873,12 +896,14 @@ footer {
   justify-content: center;
   align-items: center;
   margin-top: 30px;
+  overflow: hidden;
 }
 
 .carousel-image {
+  display: block;
   width: 100%;
-  aspect-ratio: 1 / 1; 
-  object-fit: cover;      /* 保持图片填充，不变形 */
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   border-radius: 16px;
 }
 
@@ -906,4 +931,29 @@ footer {
 
 .carousel-btn:hover {
   background: rgba(35, 79, 154, 0.9);
+}
+
+@media (max-width: 980px) {
+  .carousel-wrapper {
+    margin-top: 18px;
+    margin-bottom: 0;
+  }
+
+  .carousel-image {
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+  }
+
+  .carousel-btn {
+    padding: 6px 10px;
+    font-size: 18px;
+  }
+
+  .carousel-btn.prev {
+    left: 6px;
+  }
+
+  .carousel-btn.next {
+    right: 6px;
+  }
 }
