@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ShieldCheck,
@@ -150,7 +150,7 @@ const translations = {
   },
 
   zh: {
-    brandName: "密封科技",
+    brandName: "奥斯姆密封科技",
     brandSubtitle: "工业密封解决方案",
     navProducts: "产品",
     navApplications: "应用场景",
@@ -158,8 +158,8 @@ const translations = {
     navAbout: "关于我们",
     navContact: "联系我们",
     heroEyebrow: "面向钢铁行业液压系统的专业密封解决方案",
-    heroTitle: "奥斯姆科技有限公司 - 生成适用于严苛钢铁生产系统的密封产品。",
-    heroText: "Ausome Seals Technology 为液压闸机系统、液压缸以及重型钢铁生产设备提供工业密封解决方案。我们专注于产品耐久性、泄漏控制以及复杂工况下的稳定运行表现。",
+    heroTitle: "适用于严苛钢铁生产系统的密封产品。",
+    heroText: "奥斯姆密封科技有限公司为液压闸机系统、液压缸以及重型钢铁生产设备提供工业密封解决方案。我们专注于产品耐久性、泄漏控制以及复杂工况下的稳定运行表现。",
     viewProducts: "查看产品",
     requestQuote: "获取报价",
     steel: "钢铁",
@@ -273,7 +273,7 @@ function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
         <div className="brand">
           <img src={logo} alt="Ausome logo" className="brand-logo" />
           <div>
-            <strong>Seals Technology</strong>
+            <strong>{t.brandName}</strong>
             <span>{t.brandSubtitle}</span>
           </div>
         </div>
@@ -496,16 +496,6 @@ function ApplicationSection({ t }) {
           <Factory size={34} />
           <h3>{t.technicalSupport}</h3>
           <p>{t.applicationsText}</p>
-
-          <div className="capability-row">
-            <Gauge />
-            <span>{t.pressureReview}</span>
-          </div>
-
-          <div className="capability-row">
-            <Wrench />
-            <span>{t.customSizing}</span>
-          </div>
         </div>
       </div>
     </section>
@@ -764,21 +754,46 @@ function App() {
 function ImageCarousel({ images, sectionTitle, sectionText, tLabel, tTitle, tText }) {
   const [current, setCurrent] = useState(0);
 
-  const prev = () => setCurrent((current - 1 + images.length) % images.length);
-  const next = () => setCurrent((current + 1) % images.length);
+  useEffect(() => {
+    images.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, [images]);
+
+  const prev = () => {
+    setCurrent((index) => (index - 1 + images.length) % images.length);
+  };
+
+  const next = () => {
+    setCurrent((index) => (index + 1) % images.length);
+  };
 
   return (
-    <section className="section muted">
+    <section className="section muted carousel-section">
       <div className="container">
         <div className="section-head">
           {tLabel && <span>{tLabel}</span>}
           <h2>{tTitle || sectionTitle}</h2>
           <p>{tText || sectionText}</p>
         </div>
+
         <div className="carousel-wrapper">
-          <button className="carousel-btn prev" onClick={prev}>&lt;</button>
-          <img src={images[current]} alt={`Slide ${current + 1}`} className="carousel-image" />
-          <button className="carousel-btn next" onClick={next}>&gt;</button>
+          <button className="carousel-btn prev" onClick={prev} type="button">
+            &lt;
+          </button>
+
+          <img
+            src={images[current]}
+            alt={`Slide ${current + 1}`}
+            className="carousel-image"
+            loading="eager"
+            decoding="async"
+          />
+
+          <button className="carousel-btn next" onClick={next} type="button">
+            &gt;
+          </button>
         </div>
       </div>
     </section>
