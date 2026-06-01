@@ -18,29 +18,33 @@ import {
 import logo from "./assets/logo.webp";
 import "./styles.css";
 
-import product1 from "./assets/products/product1.jpg";
-import product2 from "./assets/products/product2.jpg";
-import product3 from "./assets/products/product3.jpg";
+import product1 from "./assets/products/product1.webp";
+import product2 from "./assets/products/product2.webp";
+import product3 from "./assets/products/product3.webp";
+import product4 from "./assets/products/product4.webp";
+import product5 from "./assets/products/product5.webp";
 
 // Factory images
+import factory1 from "./assets/factory/factory1.webp";
 import factory2 from "./assets/factory/factory2.webp";
 import factory3 from "./assets/factory/factory3.webp";
+import factory4 from "./assets/factory/factory4.webp";
 import factory5 from "./assets/factory/factory5.webp";
 import factory6 from "./assets/factory/factory6.webp";
 import factory7 from "./assets/factory/factory7.webp";
+import factory8 from "./assets/factory/factory8.webp";
 import factory9 from "./assets/factory/factory9.webp";
-import factory10 from "./assets/factory/factory10.webp";
 
 // Lab images
 import lab1 from "./assets/factory/lab1.webp";
-import lab6 from "./assets/factory/lab6.webp";
-import lab7 from "./assets/factory/lab7.webp";
-import lab10 from "./assets/factory/lab10.webp";
-import lab11 from "./assets/factory/lab11.webp";
+import lab2 from "./assets/factory/lab2.webp";
+import lab3 from "./assets/factory/lab3.webp";
 
 // Office images
 import office1 from "./assets/factory/office1.webp";
 import office2 from "./assets/factory/office2.webp";
+import office3 from "./assets/factory/office3.webp";
+import office4 from "./assets/factory/office4.webp";
 
 import coop1 from "./assets/coop/coop1.png";
 import coop2 from "./assets/coop/coop2.jpg";
@@ -242,11 +246,11 @@ const translations = {
   },
 };
 
-const productImages = [product1, product2, product3];
+const productImages = [product1, product2, product3, product4, product5];
 
-const factoryImages = [factory2, factory3, factory5, factory6, factory7, factory9, factory10];
-const labImages = [lab1, lab6, lab7, lab10, lab11];
-const officeImages = [office1, office2];
+const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9];
+const labImages = [lab1, lab2, lab3];
+const officeImages = [office1, office2, office3, office4];
 
 const coopImages = [
   coop1,
