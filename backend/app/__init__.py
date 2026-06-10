@@ -67,7 +67,9 @@ def send_contact_email_with_resend(inquiry):
         method="POST",
         headers={
             "Authorization": f"Bearer {resend_api_key}",
+            "Accept": "application/json",
             "Content-Type": "application/json",
+            "User-Agent": "Ausome-Seals-Contact/1.0",
         },
     )
 
