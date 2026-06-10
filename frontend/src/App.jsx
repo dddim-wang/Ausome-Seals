@@ -549,6 +549,7 @@ function AboutSection({ t }) {
 
 function ContactSection({ t }) {
   const [status, setStatus] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const [form, setForm] = useState({
     name: "",
     company: "",
@@ -562,6 +563,9 @@ function ContactSection({ t }) {
 
   async function submit(event) {
     event.preventDefault();
+    if (isSending) return;
+
+    setIsSending(true);
     setStatus(t.sending);
 
     try {
@@ -584,6 +588,8 @@ function ContactSection({ t }) {
       });
     } catch {
       setStatus(t.errorMessage);
+    } finally {
+      setIsSending(false);
     }
   }
 
@@ -643,8 +649,8 @@ function ContactSection({ t }) {
             required
           />
 
-          <button className="btn primary" type="submit">
-            {t.submitInquiry}
+          <button className="btn primary" type="submit" disabled={isSending}>
+            {isSending ? t.sending : t.submitInquiry}
           </button>
 
           {status && <p className="form-status">{status}</p>}

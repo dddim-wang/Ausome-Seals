@@ -1,12 +1,71 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
 import os
 import re
+import smtplib
 from datetime import datetime
+from email.message import EmailMessage
+
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+DEFAULT_CONTACT_TO_EMAIL = "ausomeseals@gmail.com"
+
+
+def _env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def send_contact_email(inquiry):
+    smtp_host = os.getenv("SMTP_HOST", "").strip()
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_username = os.getenv("SMTP_USERNAME", "").strip()
+    smtp_password = os.getenv("SMTP_PASSWORD", "")
+    smtp_from_email = os.getenv("SMTP_FROM_EMAIL", smtp_username).strip()
+    smtp_use_tls = _env_bool("SMTP_USE_TLS", True)
+    smtp_use_ssl = _env_bool("SMTP_USE_SSL", False)
+    contact_to_email = os.getenv("CONTACT_TO_EMAIL", DEFAULT_CONTACT_TO_EMAIL).strip()
+
+    if not smtp_host or not smtp_from_email:
+        raise RuntimeError("SMTP_HOST and SMTP_FROM_EMAIL or SMTP_USERNAME are required")
+
+    subject = f"New Ausome Seals inquiry from {inquiry['name']}"
+    if inquiry["company"]:
+        subject += f" ({inquiry['company']})"
+
+    body = "\n".join([
+        "A customer submitted the Ausome Seals contact form.",
+        "",
+        f"Name: {inquiry['name']}",
+        f"Company: {inquiry['company'] or '-'}",
+        f"Email: {inquiry['email']}",
+        f"Submitted at: {inquiry['created_at']}",
+        "",
+        "Message:",
+        inquiry["message"],
+    ])
+
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = smtp_from_email
+    message["To"] = contact_to_email
+    message["Reply-To"] = inquiry["email"]
+    message.set_content(body)
+
+    smtp_class = smtplib.SMTP_SSL if smtp_use_ssl else smtplib.SMTP
+    with smtp_class(smtp_host, smtp_port, timeout=15) as smtp:
+        if smtp_use_tls and not smtp_use_ssl:
+            smtp.starttls()
+        if smtp_username and smtp_password:
+            smtp.login(smtp_username, smtp_password)
+        smtp.send_message(message)
 
 def create_app():
+    load_dotenv()
+
     app = Flask(__name__)
     CORS(app, resources={r"/api/*": {"origins": os.getenv("FRONTEND_ORIGIN", "*")}})
 
@@ -67,7 +126,15 @@ def create_app():
         }
         inquiries.append(inquiry)
 
-        # In production, save to database and send notification email here.
+        try:
+            send_contact_email(inquiry)
+        except Exception as exc:
+            app.logger.exception("Unable to send contact email")
+            return jsonify({
+                "error": "unable to send contact email",
+                "details": str(exc) if app.debug else "email delivery failed"
+            }), 503
+
         return jsonify({
             "message": "Inquiry received",
             "inquiry": inquiry
