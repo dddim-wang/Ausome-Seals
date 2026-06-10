@@ -96,6 +96,39 @@ For Railway or other deployment, set:
 VITE_API_BASE=https://your-backend-domain.up.railway.app
 ```
 
+## Railway Deployment Checklist
+
+If frontend and backend are deployed as separate Railway services, the frontend must use the backend's public domain.
+
+Backend service variables:
+
+```env
+CONTACT_TO_EMAIL=ausomeseals@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USE_TLS=true
+SMTP_USERNAME=your-sender@gmail.com
+SMTP_PASSWORD=your-gmail-app-password
+SMTP_FROM_EMAIL=your-sender@gmail.com
+FRONTEND_ORIGIN=https://your-frontend-domain
+```
+
+Frontend service variables:
+
+```env
+VITE_API_BASE=https://your-backend-domain.up.railway.app
+```
+
+After changing `VITE_API_BASE`, redeploy the frontend service. Vite reads this value during build, so changing it after the build does not update the already-built JavaScript.
+
+Check the backend in a browser:
+
+```text
+https://your-backend-domain.up.railway.app/api/health
+```
+
+It should return a small JSON response with `"status": "ok"`.
+
 ## Production Notes
 
 Before real production use:
