@@ -118,7 +118,7 @@ const translations = {
     messagePlaceholder: "Tell us about your sealing requirement",
     submitInquiry: "Submit Inquiry",
     sending: "Sending...",
-    successMessage: "Message received. We will contact you soon.",
+    successMessage: "Message sent. We will contact you soon.",
     errorMessage: "Unable to send right now. Please check backend connection.",
 
     email: "ausomeseals@gmail.com",
@@ -209,7 +209,7 @@ const translations = {
     messagePlaceholder: "请描述您的密封产品需求",
     submitInquiry: "提交询盘",
     sending: "发送中...",
-    successMessage: "信息已收到，我们会尽快与您联系。",
+    successMessage: "消息已发送，我们会尽快与您联系。",
     errorMessage: "暂时无法发送，请检查后端连接。",
 
     email: "ausomeseals@gmail.com",
