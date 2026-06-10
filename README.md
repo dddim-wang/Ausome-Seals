@@ -52,19 +52,15 @@ The contact form sends every inquiry to:
 ausomeseals@gmail.com
 ```
 
-Copy `backend/.env.example` to `backend/.env`, then fill in the SMTP sender account:
+Copy `backend/.env.example` to `backend/.env`, then fill in the Resend sender settings:
 
 ```env
 CONTACT_TO_EMAIL=ausomeseals@gmail.com
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USE_TLS=true
-SMTP_USERNAME=your-sender@gmail.com
-SMTP_PASSWORD=your-gmail-app-password
-SMTP_FROM_EMAIL=your-sender@gmail.com
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=Ausome Seals <onboarding@resend.dev>
 ```
 
-For Gmail, create an App Password and use it as `SMTP_PASSWORD`. Do not use the normal Gmail login password. In production, set the same variables in the hosting platform's environment settings.
+For Railway, Resend is recommended because it sends through HTTPS instead of blocked SMTP ports. If you verify your own domain in Resend, set `RESEND_FROM_EMAIL` to an address on that domain.
 
 ## Run Frontend
 
@@ -104,12 +100,8 @@ Backend service variables:
 
 ```env
 CONTACT_TO_EMAIL=ausomeseals@gmail.com
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USE_TLS=true
-SMTP_USERNAME=your-sender@gmail.com
-SMTP_PASSWORD=your-gmail-app-password
-SMTP_FROM_EMAIL=your-sender@gmail.com
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=Ausome Seals <onboarding@resend.dev>
 FRONTEND_ORIGIN=https://your-frontend-domain
 ```
 
