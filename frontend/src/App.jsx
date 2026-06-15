@@ -515,6 +515,9 @@ function CooperationSection({ t }) {
   const offsetRef = useRef(0);
   const setWidthRef = useRef(0);
   const lastPointerXRef = useRef(0);
+  const lastMoveTimeRef = useRef(0);
+  const velocityRef = useRef(0);
+  const inertiaFrameRef = useRef(null);
   const isDraggingRef = useRef(false);
   const hasUserControlledRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -577,6 +580,7 @@ function CooperationSection({ t }) {
     return () => {
       window.removeEventListener("resize", measure);
       cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(inertiaFrameRef.current);
     };
   }, []);
 
@@ -597,10 +601,41 @@ function CooperationSection({ t }) {
     track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
   };
 
+  const startInertia = () => {
+    cancelAnimationFrame(inertiaFrameRef.current);
+
+    let previousTime = performance.now();
+    const friction = 0.92;
+    const minimumVelocity = 8;
+
+    const animateInertia = (time) => {
+      const elapsedSeconds = Math.min((time - previousTime) / 1000, 0.04);
+      previousTime = time;
+
+      velocityRef.current *= friction;
+      moveSliderBy(velocityRef.current * elapsedSeconds);
+
+      if (Math.abs(velocityRef.current) > minimumVelocity && !isDraggingRef.current) {
+        inertiaFrameRef.current = requestAnimationFrame(animateInertia);
+      } else {
+        velocityRef.current = 0;
+        inertiaFrameRef.current = null;
+      }
+    };
+
+    if (Math.abs(velocityRef.current) > minimumVelocity) {
+      inertiaFrameRef.current = requestAnimationFrame(animateInertia);
+    }
+  };
+
   const startDragging = (event) => {
+    cancelAnimationFrame(inertiaFrameRef.current);
+    inertiaFrameRef.current = null;
+    velocityRef.current = 0;
     hasUserControlledRef.current = true;
     isDraggingRef.current = true;
     lastPointerXRef.current = event.clientX;
+    lastMoveTimeRef.current = performance.now();
     setIsDragging(true);
     sliderRef.current?.setPointerCapture?.(event.pointerId);
   };
@@ -609,7 +644,13 @@ function CooperationSection({ t }) {
     if (!isDraggingRef.current) return;
 
     const deltaX = event.clientX - lastPointerXRef.current;
+    const now = performance.now();
+    const elapsedSeconds = Math.max((now - lastMoveTimeRef.current) / 1000, 0.001);
+    const instantVelocity = deltaX / elapsedSeconds;
+
+    velocityRef.current = velocityRef.current * 0.55 + instantVelocity * 0.45;
     lastPointerXRef.current = event.clientX;
+    lastMoveTimeRef.current = now;
     moveSliderBy(deltaX);
   };
 
@@ -621,6 +662,7 @@ function CooperationSection({ t }) {
     if (sliderRef.current?.hasPointerCapture?.(event.pointerId)) {
       sliderRef.current.releasePointerCapture(event.pointerId);
     }
+    startInertia();
   };
 
   return (
@@ -640,7 +682,7 @@ function CooperationSection({ t }) {
         onPointerMove={dragSlider}
         onPointerUp={stopDragging}
         onPointerCancel={stopDragging}
-        onPointerLeave={stopDragging}
+        onLostPointerCapture={stopDragging}
       >
         <div className="coop-track" ref={trackRef}>
           {scrollingImages.map((image, index) => (
