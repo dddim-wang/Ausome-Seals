@@ -96,7 +96,7 @@ const translations = {
     officeTitle: "Office & Meeting Rooms",
     officeText: "Our team supports quotation review, drawing confirmation, production planning, and export communication for overseas industrial customers.",
 
-    productsLabel: "Product Range",
+    productsLabel: "Products",
     productsTitle: "Rolling mill and heavy hydraulic sealing products",
     productsText: "Core products can be customized by material, profile, diameter, pressure, temperature, medium, and equipment interface.",
 
@@ -175,7 +175,7 @@ const translations = {
     sealDesign: "密封设计",
     b2b: "B2B",
     technicalSupport: "技术支持",
-    heroCardTitle: "面向替换维修与定制适配",
+    heroCardTitle: "替换维修与定制适配",
     heroCardText: "支持来样替换、按图加工和工况确认，帮助钢厂检修团队根据设备位置、尺寸、材料和实际工况匹配合适的密封件。",
 
     factoryTitle: "生产环境与制造能力",
@@ -317,8 +317,8 @@ function Hero({ t }) {
     const nextClicks = ringClicks + 1;
     setRingClicks(nextClicks);
 
-    if (nextClicks >= 7) {
-      window.open("https://userinyerface.com/", "_blank");
+    if (nextClicks >= 5) {
+      window.open("https://aosimu.com/", "_blank");
       setRingClicks(0);
     }
   };
