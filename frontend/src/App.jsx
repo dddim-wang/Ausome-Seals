@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ShieldCheck,
@@ -510,7 +510,118 @@ function ApplicationSection({ t }) {
 }
 
 function CooperationSection({ t }) {
-  const scrollingImages = [...coopImages, ...coopImages];
+  const sliderRef = useRef(null);
+  const trackRef = useRef(null);
+  const offsetRef = useRef(0);
+  const setWidthRef = useRef(0);
+  const lastPointerXRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const hasUserControlledRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const scrollingImages = [...coopImages, ...coopImages, ...coopImages];
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const applyOffset = () => {
+      track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+    };
+
+    const normalizeOffset = (value) => {
+      const setWidth = setWidthRef.current;
+      if (!setWidth) return value;
+
+      let nextValue = value;
+      while (nextValue <= -setWidth * 2) {
+        nextValue += setWidth;
+      }
+      while (nextValue >= 0) {
+        nextValue -= setWidth;
+      }
+
+      return nextValue;
+    };
+
+    const measure = () => {
+      const firstSetCards = Array.from(track.children).slice(0, coopImages.length);
+      const gap = parseFloat(window.getComputedStyle(track).columnGap || "0");
+      const firstSetWidth = firstSetCards.reduce((total, card) => total + card.offsetWidth, 0) + gap * coopImages.length;
+
+      setWidthRef.current = firstSetWidth;
+      offsetRef.current = normalizeOffset(offsetRef.current || -firstSetWidth);
+      applyOffset();
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+
+    let animationFrameId;
+    let previousTime = performance.now();
+    const speed = 36;
+
+    const animate = (time) => {
+      const elapsedSeconds = (time - previousTime) / 1000;
+      previousTime = time;
+
+      if (!hasUserControlledRef.current && !isDraggingRef.current) {
+        offsetRef.current = normalizeOffset(offsetRef.current - speed * elapsedSeconds);
+        applyOffset();
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("resize", measure);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  const moveSliderBy = (deltaX) => {
+    const track = trackRef.current;
+    const setWidth = setWidthRef.current;
+    if (!track || !setWidth) return;
+
+    let nextOffset = offsetRef.current + deltaX;
+    while (nextOffset <= -setWidth * 2) {
+      nextOffset += setWidth;
+    }
+    while (nextOffset >= 0) {
+      nextOffset -= setWidth;
+    }
+
+    offsetRef.current = nextOffset;
+    track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+  };
+
+  const startDragging = (event) => {
+    hasUserControlledRef.current = true;
+    isDraggingRef.current = true;
+    lastPointerXRef.current = event.clientX;
+    setIsDragging(true);
+    sliderRef.current?.setPointerCapture?.(event.pointerId);
+  };
+
+  const dragSlider = (event) => {
+    if (!isDraggingRef.current) return;
+
+    const deltaX = event.clientX - lastPointerXRef.current;
+    lastPointerXRef.current = event.clientX;
+    moveSliderBy(deltaX);
+  };
+
+  const stopDragging = (event) => {
+    if (!isDraggingRef.current) return;
+
+    isDraggingRef.current = false;
+    setIsDragging(false);
+    if (sliderRef.current?.hasPointerCapture?.(event.pointerId)) {
+      sliderRef.current.releasePointerCapture(event.pointerId);
+    }
+  };
 
   return (
     <section id="cooperation" className="section cooperation-section">
@@ -522,8 +633,16 @@ function CooperationSection({ t }) {
         </div>
       </div>
 
-      <div className="coop-slider">
-        <div className="coop-track">
+      <div
+        className={isDragging ? "coop-slider dragging" : "coop-slider"}
+        ref={sliderRef}
+        onPointerDown={startDragging}
+        onPointerMove={dragSlider}
+        onPointerUp={stopDragging}
+        onPointerCancel={stopDragging}
+        onPointerLeave={stopDragging}
+      >
+        <div className="coop-track" ref={trackRef}>
           {scrollingImages.map((image, index) => (
             <div className="coop-card" key={`${image}-${index}`}>
               <img src={image} alt={`Cooperation partner ${index + 1}`} />

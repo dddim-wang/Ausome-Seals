@@ -528,13 +528,20 @@ h1 {
   width: 100%;
   overflow: hidden;
   padding: 10px 0 20px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.coop-slider.dragging {
+  cursor: grabbing;
 }
 
 .coop-track {
   display: flex;
   gap: 24px;
   width: max-content;
-  animation: coop-scroll 38s linear infinite;
+  will-change: transform;
 }
 
 .coop-card {
@@ -556,22 +563,8 @@ h1 {
   height: 100%;
   object-fit: contain;
   padding: 18px;
-}
-
-@keyframes coop-scroll {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .coop-slider:hover .coop-track {
-    animation-play-state: paused;
-  }
+  pointer-events: none;
+  user-select: none;
 }
 
 /* About */
@@ -857,28 +850,16 @@ footer {
   }
 
   .coop-slider {
-    overflow-x: auto;
-    overflow-y: hidden;
     padding: 10px 20px 20px;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
   }
 
   .coop-track {
-    display: flex;
     gap: 16px;
-    width: max-content;
-    animation: coop-scroll 38s linear infinite;
   }
 
   .coop-card {
     width: 150px;
     height: 150px;
-    scroll-snap-align: start;
-  }
-
-  .coop-slider::-webkit-scrollbar {
-    display: none;
   }
 
   .language-toggle {
