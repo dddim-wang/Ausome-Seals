@@ -125,7 +125,7 @@ const translations = {
     errorMessage: "Unable to send right now. Please check backend connection.",
 
     email: "ausomeseals@gmail.com",
-    phone: "+86 137-7661-6519",
+    phone: "WhatsApp: +86 137-7661-6519",
     location: "China / Global Steel Industry Customers",
     footerRights: "All rights reserved.",
 
@@ -216,7 +216,7 @@ const translations = {
     errorMessage: "暂时无法发送，请检查后端连接。",
 
     email: "ausomeseals@gmail.com",
-    phone: "+86 137-7661-6519",
+    phone: "WhatsApp: +86 137-7661-6519",
     location: "中国 / 全球钢铁行业客户",
     footerRights: "版权所有。",
 
