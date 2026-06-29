@@ -10,6 +10,8 @@ import {
   Phone,
   MapPin,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Menu,
   X,
@@ -21,8 +23,6 @@ import "./styles.css";
 import product1 from "./assets/products/product1.webp";
 import product2 from "./assets/products/product2.webp";
 import product3 from "./assets/products/product3.webp";
-import product4 from "./assets/products/product4.webp";
-import product5 from "./assets/products/product5.webp";
 
 // Factory images
 import factory1 from "./assets/factory/factory1.webp";
@@ -133,7 +133,7 @@ const translations = {
   {
     title: "Rolling Mill Seals",
     desc: "Custom sealing components for rolling mill stands, bearing areas, hydraulic systems, and steel plant maintenance replacement.",
-    features: ["Abrasive-resistant", "Drawing-based", "Custom profiles"],
+    features: ["Abrasive-resistant", "High-temperature resistant", "Drawing-based", "Custom profiles"],
   },
   {
     title: "Hydraulic Gate & Cylinder Seals",
@@ -224,7 +224,7 @@ const translations = {
       {
         title: "轧机密封件",
         desc: "适用于轧机机架、轴承区域、液压系统以及钢厂检修替换需求的定制密封组件。",
-        features: ["耐磨污染", "按图加工", "定制截面"],
+        features: ["耐磨污染", "耐高温", "按图加工", "定制截面"],
       },
       {
         title: "液压闸机与液压缸密封件",
@@ -249,7 +249,7 @@ const translations = {
   },
 };
 
-const productImages = [product1, product2, product3, product4, product5];
+const productImages = [product1, product2, product3];
 
 const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9];
 const labImages = [lab1, lab2, lab3];
@@ -440,6 +440,24 @@ function OfficeSection({ t }) {
 }
 
 function ProductSection({ t }) {
+  const product = t.products[0];
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    productImages.forEach((src) => {
+      const image = new Image();
+      image.src = src;
+    });
+  }, []);
+
+  const prevImage = () => {
+    setCurrentImage((index) => (index - 1 + productImages.length) % productImages.length);
+  };
+
+  const nextImage = () => {
+    setCurrentImage((index) => (index + 1) % productImages.length);
+  };
+
   return (
     <section id="products" className="section">
       <div className="container">
@@ -449,32 +467,56 @@ function ProductSection({ t }) {
           <p>{t.productsText}</p>
         </div>
 
-        <div className="cards">
-          {t.products.map((item, index) => (
-            <article className="product-card" key={item.title}>
+        <div className="cards single-product">
+          <article className="product-card featured-product" key={product.title}>
+            <div className="product-carousel" aria-label={product.title}>
+              <button className="product-carousel-btn prev" onClick={prevImage} type="button" aria-label="Previous product image">
+                <ChevronLeft size={22} />
+              </button>
+
               <img
-                src={productImages[index]}
-                alt={item.title}
+                src={productImages[currentImage]}
+                alt={product.title}
                 className="product-image"
+                decoding="async"
+                fetchPriority="high"
               />
 
+              <button className="product-carousel-btn next" onClick={nextImage} type="button" aria-label="Next product image">
+                <ChevronRight size={22} />
+              </button>
+
+              <div className="product-carousel-dots">
+                {productImages.map((image, index) => (
+                  <button
+                    className={index === currentImage ? "active" : ""}
+                    key={image}
+                    onClick={() => setCurrentImage(index)}
+                    type="button"
+                    aria-label={`Show product image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="product-content">
               <div className="icon-box">
                 <Droplets size={26} />
               </div>
 
-              <h3>{item.title}</h3>
-              <p>{item.desc}</p>
+              <h3>{product.title}</h3>
+              <p>{product.desc}</p>
 
               <ul>
-                {item.features.map((feature) => (
+                {product.features.map((feature) => (
                   <li key={feature}>
                     <CheckCircle2 size={16} />
                     {feature}
                   </li>
                 ))}
               </ul>
-            </article>
-          ))}
+            </div>
+          </article>
         </div>
       </div>
     </section>
