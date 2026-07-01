@@ -148,7 +148,7 @@ a {
 /* Hero */
 
 .hero {
-  padding: 82px 0 78px;
+  padding: 42px 0 70px;
   background:
     radial-gradient(circle at 85% 20%, rgba(35, 79, 154, 0.18), transparent 34%),
     linear-gradient(180deg, #ffffff, #edf3fb);
@@ -785,7 +785,7 @@ footer {
   }
 
   .hero {
-    padding: 52px 0 48px;
+    padding: 28px 0 44px;
   }
 
   .section-head {
@@ -899,7 +899,7 @@ footer {
   }
 
   .hero {
-    padding: 70px 0 64px;
+    padding: 28px 0 44px;
   }
 
   .hero-grid,
