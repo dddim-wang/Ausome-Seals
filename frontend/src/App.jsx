@@ -40,11 +40,6 @@ import lab1 from "./assets/factory/lab1.webp";
 import lab2 from "./assets/factory/lab2.webp";
 import lab3 from "./assets/factory/lab3.webp";
 
-// Office images
-import office1 from "./assets/factory/office1.webp";
-import office2 from "./assets/factory/office2.webp";
-import office3 from "./assets/factory/office3.webp";
-import office4 from "./assets/factory/office4.webp";
 
 import coop1 from "./assets/coop/coop1.png";
 import coop2 from "./assets/coop/coop2.jpg";
@@ -66,7 +61,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
 const translations = {
   en: {
-    brandName: "Seals Technology",
+    brandName: "Ausome Seals",
     brandSubtitle: "Heavy Machinery Sealing Solutions",
     navProducts: "Products",
     navApplications: "Applications",
@@ -75,26 +70,23 @@ const translations = {
     navContact: "Contact",
     heroEyebrow: "Custom sealing solutions for heavy machinery and industrial hydraulics",
     heroTitle: "Heavy Machinery Sealing Solutions.",
-    heroText: "Ausome Seals Technology manufactures custom sealing products for heavy machinery, hydraulic systems, cylinders, and demanding production equipment. We help industrial users control leakage, resist abrasive contamination, and keep critical equipment running through tough maintenance cycles.",
+    heroText: "Ausome Seals provides sealing solutions across various industrial applications through its expertise in leakage control and custom sealing design. Our product lineup includes oil seals and other rubber-based sealing products for steel mills, heavy machinery, cylinders, pumps, gearboxes, and demanding production equipment.",
     viewProducts: "View Products",
     requestQuote: "Request a Quote",
     steel: "Heavy Machinery",
     industryFocus: "Industry Focus",
     custom: "Custom",
     sealDesign: "Seal Design",
-    b2b: "B2B",
     technicalSupport: "Technical Support",
+    supportItems: ["Seal installation", "Replacement review", "Working-condition analysis"],
     heroCardTitle: "Custom-fit sealing",
     heroCardText: "From sample-based replacement to drawing-based production, we support maintenance teams with seals matched to real equipment positions, dimensions, materials, and working conditions.",
 
     factoryTitle: "Manufacturing Capability",
-    factoryText: "Ausome Seals Technology supports custom seal production, sample-based replacement, drawing-based machining, quality inspection, and technical communication for heavy machinery and industrial equipment clients.",
+    factoryText: "Ausome Seals supports custom seal production, sample-based replacement, drawing-based machining, quality inspection, and technical communication for heavy machinery and industrial equipment clients.",
 
     labTitle: "Testing Facilities",
     labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
-
-    officeTitle: "Office & Support",
-    officeText: "Our team supports quotation review, drawing confirmation, production planning, and export communication for overseas industrial customers.",
 
     productsLabel: "Products",
     productsTitle: "Heavy Machinery Seals",
@@ -110,7 +102,7 @@ const translations = {
 
     aboutLabel: "About",
     aboutTitle: "Built for Demanding Conditions.",
-    aboutText: "Based in China, Ausome Seals Technology is a sealing product manufacturer with years of experience in heavy equipment sealing applications for steel plants. Through long-term cooperation with equipment users, maintenance teams, and manufacturing partners, we have built practical technical knowledge in seal selection, replacement, installation, and on-site application support. We are now bringing this manufacturing experience and service capability to international industrial customers.",
+    aboutText: "Based in China, Ausome Seals is a sealing product manufacturer with years of experience in heavy equipment sealing applications for steel plants. Through long-term cooperation with equipment users, maintenance teams, and manufacturing partners, we have built practical technical knowledge in seal selection, replacement, installation, and on-site application support. We are now bringing this manufacturing experience and service capability to international industrial customers.",
 
     contactLabel: "Contact",
     contactTitle: "Request a Quote",
@@ -119,14 +111,14 @@ const translations = {
     companyPlaceholder: "Company",
     emailPlaceholder: "Email",
     messagePlaceholder: "Seal size, working conditions, drawing/sample, and quantity",
-    submitInquiry: "Submit Inquiry",
+    submitInquiry: "Submit",
     sending: "Sending...",
     successMessage: "Message sent. We will contact you soon.",
     errorMessage: "Unable to send right now. Please check backend connection.",
 
     email: "ausomeseals@gmail.com",
     phone: "WhatsApp: +86 137-7661-6519",
-    location: "China / Global Heavy Machinery Customers",
+    location: "China / Global Customers",
     footerRights: "All rights reserved.",
 
     products: [
@@ -157,7 +149,7 @@ const translations = {
   },
 
   zh: {
-    brandName: "奥斯姆密封科技",
+    brandName: "Ausome Seals",
     brandSubtitle: "重型机械密封解决方案",
     navProducts: "产品",
     navApplications: "应用场景",
@@ -166,26 +158,23 @@ const translations = {
     navContact: "联系我们",
     heroEyebrow: "面向重型机械与工业液压系统的定制密封",
     heroTitle: "重型机械密封解决方案。",
-    heroText: "奥斯姆密封科技有限公司为重型机械、工业液压系统、液压缸以及严苛工况生产设备提供定制密封产品，帮助工业用户控制泄漏、抵抗磨粒和油水污染，并在高强度检修周期中保持关键设备稳定运行。",
+    heroText: "Ausome Seals 凭借泄漏控制和定制密封设计经验，为多类工业应用提供密封解决方案。产品包括油封以及其他橡胶类密封产品，适用于钢厂、重型机械、液压缸、泵、齿轮箱和严苛工况生产设备。",
     viewProducts: "查看产品",
     requestQuote: "获取报价",
     steel: "重型机械",
     industryFocus: "行业专注",
     custom: "定制",
     sealDesign: "密封设计",
-    b2b: "B2B",
     technicalSupport: "技术支持",
+    supportItems: ["密封安装", "替换评估", "工况分析"],
     heroCardTitle: "定制适配密封",
     heroCardText: "支持来样替换、按图加工和工况确认，帮助设备检修团队根据设备位置、尺寸、材料和实际工况匹配合适的密封件。",
 
     factoryTitle: "制造能力",
-    factoryText: "奥斯姆密封科技支持定制密封件生产、来样替换、按图加工、质量检验和技术沟通，为重型机械与工业设备客户提供稳定的制造配合。",
+    factoryText: "Ausome Seals支持定制密封件生产、来样替换、按图加工、质量检验和技术沟通，为重型机械与工业设备客户提供稳定的制造配合。",
 
     labTitle: "测试设施",
     labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
-
-    officeTitle: "办公与支持",
-    officeText: "团队支持报价评估、图纸确认、生产排期以及海外工业客户的出口沟通。",
 
     productsLabel: "产品系列",
     productsTitle: "重型机械密封件",
@@ -201,7 +190,7 @@ const translations = {
 
     aboutLabel: "关于",
     aboutTitle: "面向严苛工况。",
-    aboutText: "奥斯姆密封科技是一家位于中国的密封产品制造企业，多年来专注于钢厂重型设备密封应用。通过与设备使用方、检修团队和制造合作伙伴的长期合作，我们积累了丰富的密封选型、替换、安装和现场应用技术经验。现在，我们正将这些制造经验与服务能力带向国际工业客户。",
+    aboutText: "Ausome Seals是一家位于中国的密封产品制造企业，多年来专注于钢厂重型设备密封应用。通过与设备使用方、检修团队和制造合作伙伴的长期合作，我们积累了丰富的密封选型、替换、安装和现场应用技术经验。现在，我们正将这些制造经验与服务能力带向国际工业客户。",
 
     contactLabel: "联系我们",
     contactTitle: "获取报价",
@@ -210,14 +199,14 @@ const translations = {
     companyPlaceholder: "公司名称",
     emailPlaceholder: "邮箱",
     messagePlaceholder: "密封尺寸、工况、图纸/样品和采购数量",
-    submitInquiry: "提交询盘",
+    submitInquiry: "提交",
     sending: "发送中...",
     successMessage: "消息已发送，我们会尽快与您联系。",
     errorMessage: "暂时无法发送，请检查后端连接。",
 
     email: "ausomeseals@gmail.com",
     phone: "WhatsApp: +86 137-7661-6519",
-    location: "中国 / 全球重型机械与工业设备客户",
+    location: "中国 / 全球客户",
     footerRights: "版权所有。",
 
     products: [
@@ -253,7 +242,6 @@ const productImages = [product3, product1, product2];
 
 const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9];
 const labImages = [lab1, lab2, lab3];
-const officeImages = [office1, office2, office3, office4];
 
 const coopImages = [
   coop1,
@@ -333,7 +321,7 @@ function Hero({ t }) {
           </div>
 
           <h1>{t.heroTitle}</h1>
-          <p>{t.heroText}</p>
+          {t.heroText && <p>{t.heroText}</p>}
 
           <div className="hero-actions">
             <a href="#products" className="btn primary">
@@ -353,10 +341,7 @@ function Hero({ t }) {
               <strong>{t.custom}</strong>
               <span>{t.sealDesign}</span>
             </div>
-            <div>
-              <strong>{t.b2b}</strong>
-              <span>{t.technicalSupport}</span>
-            </div>
+
           </div>
         </div>
 
@@ -420,25 +405,6 @@ function LabSection({ t }) {
   );
 }
 
-function OfficeSection({ t }) {
-  return (
-    <section className="section muted" id="office">
-      <div className="container">
-        <div className="section-head">
-          <span>{t.officeLabel}</span>
-          <h2>{t.officeTitle}</h2>
-          <p>{t.officeText}</p>
-        </div>
-        <div className="factory-grid">
-          {officeImages.map((img, index) => (
-            <img src={img} alt={`Office ${index + 1}`} key={index} className="factory-image" />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ProductSection({ t }) {
   const product = t.products[0];
   const [currentImage, setCurrentImage] = useState(0);
@@ -461,9 +427,8 @@ function ProductSection({ t }) {
   return (
     <section id="products" className="section">
       <div className="container">
-        <div className="section-head">
+        <div className="section-head section-head-label-only">
           <span>{t.productsLabel}</span>
-          <h2>{t.productsTitle}</h2>
           <p>{t.productsText}</p>
         </div>
 
@@ -528,9 +493,8 @@ function ApplicationSection({ t }) {
     <section id="applications" className="section muted">
       <div className="container split">
         <div>
-          <div className="section-head left">
+          <div className="section-head left section-head-label-only">
             <span>{t.applicationsLabel}</span>
-            <h2>{t.applicationsTitle}</h2>
             <p>{t.applicationsText}</p>
           </div>
 
@@ -544,7 +508,12 @@ function ApplicationSection({ t }) {
         <div className="capability-panel">
           <Factory size={34} />
           <h3>{t.technicalSupport}</h3>
-          <p>{t.applicationsText}</p>
+          {t.supportItems.map((item) => (
+            <div className="capability-row" key={item}>
+              <CheckCircle2 size={20} />
+              <span>{item}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -710,9 +679,8 @@ function CooperationSection({ t }) {
   return (
     <section id="cooperation" className="section cooperation-section">
       <div className="container">
-        <div className="section-head">
+        <div className="section-head section-head-label-only">
           <span>{t.cooperationLabel}</span>
-          <h2>{t.cooperationTitle}</h2>
           <p>{t.cooperationText}</p>
         </div>
       </div>
@@ -874,13 +842,13 @@ function Footer({ t }) {
           <img src={logo} alt="Ausome logo" className="footer-logo" />
 
           <div>
-            <strong>Ausome Seals Technology</strong>
+            <strong>Ausome Seals</strong>
             <span>{t.brandSubtitle}</span>
           </div>
         </div>
 
         <span>
-          © {new Date().getFullYear()} Ausome Seals Technology. {t.footerRights}
+          © {new Date().getFullYear()} Ausome Seals. {t.footerRights}
         </span>
       </div>
     </footer>
@@ -948,13 +916,6 @@ function App() {
         tLabel={t.labLabel}
         tTitle={t.labTitle}
         tText={t.labText}
-      />
-
-      <ImageCarousel
-        images={officeImages}
-        tLabel={t.officeLabel}
-        tTitle={t.officeTitle}
-        tText={t.officeText}
       />
       <ProductSection t={t} />
       <ApplicationSection t={t} />

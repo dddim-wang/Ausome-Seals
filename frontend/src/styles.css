@@ -178,24 +178,25 @@ a {
 }
 
 h1 {
-  margin: 18px 0;
+  margin: 12px 0 10px;
   font-size: clamp(44px, 6vw, 72px);
-  line-height: 0.98;
-  letter-spacing: -0.06em;
+  line-height: 0.94;
+  letter-spacing: -0.07em;
   color: #0d2140;
 }
 
 .hero-copy p {
-  max-width: 650px;
-  font-size: 18px;
-  line-height: 1.75;
+  max-width: 620px;
+  font-size: 17px;
+  line-height: 1.48;
+  letter-spacing: -0.01em;
   color: var(--muted-text);
 }
 
 .hero-actions {
   display: flex;
   gap: 14px;
-  margin-top: 30px;
+  margin-top: 22px;
   flex-wrap: wrap;
 }
 
@@ -230,14 +231,14 @@ h1 {
 }
 
 .stats {
-  margin-top: 44px;
+  margin-top: 28px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .stats div {
-  padding: 18px;
+  padding: 14px 16px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(16, 24, 39, 0.06);
   border-radius: 18px;
@@ -370,6 +371,13 @@ h1 {
 .section-head.left {
   text-align: left;
   margin-left: 0;
+}
+
+.section-head-label-only span {
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: #0d2140;
 }
 
 .section-head h2,
@@ -568,16 +576,16 @@ h1 {
   box-shadow: 0 20px 54px rgba(18, 59, 102, 0.22);
 }
 
-.capability-panel p {
-  color: #d9e4ef;
-  line-height: 1.7;
+.capability-panel h3 {
+  margin-bottom: 18px;
 }
+
 
 .capability-row {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 14px;
   color: #eef6fb;
 }
 
@@ -915,7 +923,8 @@ footer {
   }
 
   .hero-copy p {
-    font-size: 17px;
+    font-size: 16px;
+    line-height: 1.45;
   }
 
   .stats,
