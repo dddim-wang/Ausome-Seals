@@ -543,6 +543,35 @@ h1 {
   color: #344054;
   font-weight: 600;
 }
+.catalog-downloads {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(16, 24, 39, 0.08);
+}
+
+.catalog-downloads span {
+  display: block;
+  margin-bottom: 12px;
+  color: #0d2140;
+  font-weight: 700;
+}
+
+.catalog-download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.catalog-download-btn {
+  min-width: 160px;
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 12px 24px rgba(35, 79, 154, 0.16);
+}
+
+.catalog-download-btn:hover {
+  background: var(--primary-dark);
+}
 
 /* Applications */
 

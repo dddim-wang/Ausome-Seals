@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
+  Download,
   Menu,
   X,
 } from "lucide-react";
@@ -23,6 +24,8 @@ import "./styles.css";
 import product1 from "./assets/products/product1.webp";
 import product2 from "./assets/products/product2.webp";
 import product3 from "./assets/products/product3.webp";
+import catalogCn from "./assets/Ausome_Seals_Oil_Seal_Catalog_CN.pdf";
+import catalogEn from "./assets/Ausome_Seals_Oil_Seal_Catalog_EN.pdf";
 
 // Factory images
 import factory1 from "./assets/factory/factory1.webp";
@@ -91,6 +94,9 @@ const translations = {
     productsLabel: "Products",
     productsTitle: "Heavy Machinery Seals",
     productsText: "Core products can be customized by material, profile, diameter, pressure, temperature, medium, and equipment interface.",
+    catalogDownloadsLabel: "Product Catalog",
+    catalogDownloadCn: "Chinese Catalog",
+    catalogDownloadEn: "English Catalog",
 
     applicationsLabel: "Applications",
     applicationsTitle: "Industrial Applications",
@@ -179,6 +185,9 @@ const translations = {
     productsLabel: "产品系列",
     productsTitle: "重型机械密封件",
     productsText: "核心产品可根据材料、截面形式、直径、压力、温度、介质以及设备接口进行定制。",
+    catalogDownloadsLabel: "\u4ea7\u54c1\u624b\u518c",
+    catalogDownloadCn: "\u4e2d\u6587\u624b\u518c",
+    catalogDownloadEn: "\u82f1\u6587\u624b\u518c",
 
     applicationsLabel: "应用场景",
     applicationsTitle: "工业应用场景",
@@ -480,6 +489,28 @@ function ProductSection({ t }) {
                   </li>
                 ))}
               </ul>
+
+              <div className="catalog-downloads" aria-label={t.catalogDownloadsLabel}>
+                <span>{t.catalogDownloadsLabel}</span>
+                <div className="catalog-download-actions">
+                  <a
+                    className="btn catalog-download-btn"
+                    href={catalogCn}
+                    download="Ausome_Seals_Oil_Seal_Catalog_CN.pdf"
+                  >
+                    <Download size={18} />
+                    {t.catalogDownloadCn}
+                  </a>
+                  <a
+                    className="btn catalog-download-btn"
+                    href={catalogEn}
+                    download="Ausome_Seals_Oil_Seal_Catalog_EN.pdf"
+                  >
+                    <Download size={18} />
+                    {t.catalogDownloadEn}
+                  </a>
+                </div>
+              </div>
             </div>
           </article>
         </div>
