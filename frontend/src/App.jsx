@@ -24,8 +24,6 @@ import "./styles.css";
 import product1 from "./assets/products/product1.webp";
 import product2 from "./assets/products/product2.webp";
 import product3 from "./assets/products/product3.webp";
-import catalogCn from "./assets/Ausome_Seals_Oil_Seal_Catalog_CN.pdf";
-import catalogEn from "./assets/Ausome_Seals_Oil_Seal_Catalog_EN.pdf";
 
 // Factory images
 import factory1 from "./assets/factory/factory1.webp";
@@ -248,6 +246,8 @@ const translations = {
 };
 
 const productImages = [product3, product1, product2];
+const catalogCn = "/catalogs/Ausome_Seals_Oil_Seal_Catalog_CN.pdf";
+const catalogEn = "/catalogs/Ausome_Seals_Oil_Seal_Catalog_EN.pdf";
 
 const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9];
 const labImages = [lab1, lab2, lab3];
@@ -497,6 +497,8 @@ function ProductSection({ t }) {
                     className="btn catalog-download-btn"
                     href={catalogCn}
                     download="Ausome_Seals_Oil_Seal_Catalog_CN.pdf"
+                    target="_blank"
+                    rel="noreferrer"
                   >
                     <Download size={18} />
                     {t.catalogDownloadCn}
@@ -505,6 +507,8 @@ function ProductSection({ t }) {
                     className="btn catalog-download-btn"
                     href={catalogEn}
                     download="Ausome_Seals_Oil_Seal_Catalog_EN.pdf"
+                    target="_blank"
+                    rel="noreferrer"
                   >
                     <Download size={18} />
                     {t.catalogDownloadEn}
