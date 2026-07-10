@@ -929,9 +929,11 @@ footer {
     inset: 0;
     z-index: 400;
     border: none;
-    background: rgba(8, 20, 40, 0.24);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    background: rgba(8, 20, 40, 0.18);
+  }
+
+  body.mobile-menu-open #root > :not(.menu-backdrop):not(.mobile-nav-drawer) {
+    filter: blur(2px);
   }
 
   .mobile-nav-drawer {
@@ -944,8 +946,8 @@ footer {
     padding: 20px 14px;
     background: linear-gradient(
       180deg,
-      rgba(23, 56, 111, 0.6),
-      rgba(13, 33, 64, 0.6)
+      rgba(23, 56, 111, 0.86),
+      rgba(13, 33, 64, 0.86)
     );
     border: 1px solid rgba(255, 255, 255, 0.24);
     border-radius: 20px;
@@ -955,8 +957,8 @@ footer {
     justify-content: center;
     gap: 10px;
     z-index: 500;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(20px) saturate(125%);
+    -webkit-backdrop-filter: blur(20px) saturate(125%);
     transform: translateX(calc(100% + 24px));
     opacity: 0;
     transition:

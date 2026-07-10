@@ -984,10 +984,12 @@ function App() {
     };
 
     document.body.style.overflow = "hidden";
+    document.body.classList.add("mobile-menu-open");
     window.addEventListener("keydown", closeOnEscape);
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.body.classList.remove("mobile-menu-open");
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [mobileMenuOpen]);
