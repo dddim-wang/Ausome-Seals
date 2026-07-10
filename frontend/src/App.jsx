@@ -83,10 +83,10 @@ const translations = {
     heroCardTitle: "Custom-fit sealing",
     heroCardText: "From sample-based replacement to drawing-based production, we support maintenance teams with seals matched to real equipment positions, dimensions, materials, and working conditions.",
 
-    factoryTitle: "Manufacturing Capability",
-    factoryText: "Ausome Seals supports custom seal production, sample-based replacement, drawing-based machining, quality inspection, and technical communication for heavy machinery and industrial equipment clients.",
+    factoryTitle: "Manufacturing",
+    factoryText: "Based in Nanjing, China, our factory operates six oil seal production lines with high-specification equipment, experienced rubber sealing specialists, and professional storage for stable quality control.",
 
-    labTitle: "Testing Facilities",
+    labTitle: "Testing",
     labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
 
     productsLabel: "Products",
@@ -102,7 +102,7 @@ const translations = {
 
     cooperationLabel: "Partners",
     cooperationTitle: "Who We Support",
-    cooperationText: "With products already used in demanding industrial equipment across China, we are now expanding our sealing solutions to international equipment builders, heavy machinery users, and industrial maintenance partners.",
+    cooperationText: "Our products are used in rolling mill equipment across large steel plants in China, serving both private and state-owned enterprises. We are also expanding into more industrial sectors, providing sealing solutions for overseas equipment builders, heavy machinery users, and maintenance partners.",
 
     aboutLabel: "About",
     aboutTitle: "Built for Demanding Conditions.",
@@ -110,11 +110,11 @@ const translations = {
 
     contactLabel: "Contact",
     contactTitle: "Request a Quote",
-    contactText: "Send your seal size, working conditions, drawing or sample photo, and quantity.",
+    contactText: "Check the catalog for model and size guide, or send us your size, conditions, application, or sample photo.",
     namePlaceholder: "Your name",
     companyPlaceholder: "Company",
     emailPlaceholder: "Email",
-    messagePlaceholder: "Seal size, working conditions, drawing/sample, and quantity",
+    messagePlaceholder: "Size, conditions, application, sample photo",
     submitInquiry: "Submit",
     sending: "Sending...",
     successMessage: "Message sent. We will contact you soon.",
@@ -128,7 +128,7 @@ const translations = {
     products: [
   {
     title: "Oil Seal",
-    desc: "For rolling mill roll bearing areas, with custom sealing components tailored to specific requirements.",
+    desc: "Large oil seals for rolling mill roll bearing areas in steel plants. For more models and sizes, please download and review our product catalog.",
     features: ["Abrasive-resistant", "High-temperature resistant", "Drawing-based", "Custom profiles"],
   },
   {
@@ -174,8 +174,8 @@ const translations = {
     heroCardTitle: "定制适配密封",
     heroCardText: "支持来样替换、按图加工和工况确认，帮助设备检修团队根据设备位置、尺寸、材料和实际工况匹配合适的密封件。",
 
-    factoryTitle: "制造能力",
-    factoryText: "Ausome Seals支持定制密封件生产、来样替换、按图加工、质量检验和技术沟通，为重型机械与工业设备客户提供稳定的制造配合。",
+    factoryTitle: "生产制造",
+    factoryText: "我们的工厂位于中国南京，配备六条油封生产线，均采用高规格生产设备。生产环节由多位拥有十余年橡胶密封件制造经验的资深人员指导，并配套专业仓储环境，保障产品质量稳定。",
 
     labTitle: "测试设施",
     labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
@@ -193,7 +193,7 @@ const translations = {
 
     cooperationLabel: "合作伙伴",
     cooperationTitle: "服务对象",
-    cooperationText: "我们的产品已应用于中国国内多类严苛工业设备，目前正面向国际市场拓展，为海外设备制造商、重型机械用户和工业检修合作伙伴提供密封解决方案。",
+    cooperationText: "我们的产品已应用于中国各类大型钢铁厂轧机设备，客户覆盖民营企业与国有企业。我们也正向更多工业领域拓展，为海外设备制造商、重型机械用户和工业检修合作伙伴提供密封解决方案。",
 
     aboutLabel: "关于",
     aboutTitle: "面向严苛工况。",
@@ -201,11 +201,11 @@ const translations = {
 
     contactLabel: "联系我们",
     contactTitle: "获取报价",
-    contactText: "请提供密封尺寸、工况、图纸或样品照片以及采购数量。",
+    contactText: "请先查看产品目录中的型号与尺寸指南，或发送所需尺寸、工况、使用场景或样品图片。",
     namePlaceholder: "您的姓名",
     companyPlaceholder: "公司名称",
     emailPlaceholder: "邮箱",
-    messagePlaceholder: "密封尺寸、工况、图纸/样品和采购数量",
+    messagePlaceholder: "尺寸、工况、使用场景、样品图片",
     submitInquiry: "提交",
     sending: "发送中...",
     successMessage: "消息已发送，我们会尽快与您联系。",
@@ -219,7 +219,7 @@ const translations = {
     products: [
       {
         title: "重型机械密封件",
-        desc: "适用于轧机轧辊轴承区域，可按需求定制密封组件。",
+        desc: "图例为大型油封，适用于钢铁厂轧机轧辊轴承区域。更多型号和尺寸，请下载查看产品目录。",
         features: ["耐磨污染", "耐高温", "按图加工", "定制截面"],
       },
       {
