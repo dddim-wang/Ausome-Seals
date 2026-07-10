@@ -1,6 +1,6 @@
-# Ausome Seals Technology Website Starter
+# Ausome Seals Website
 
-This is a professional full-stack starter website for **Ausome Seals Technology**, an industrial sealing product company serving steel production hydraulic gate systems.
+Bilingual company website for **Ausome Seals**, focused on custom oil seals and rubber sealing products for steel mills, heavy machinery, hydraulic systems, and demanding industrial equipment.
 
 ## Tech Stack
 
@@ -11,7 +11,7 @@ This is a professional full-stack starter website for **Ausome Seals Technology*
 ## Project Structure
 
 ```text
-ausome-seals-starter/
+Ausome/
   frontend/
     src/App.jsx
     src/styles.css
@@ -123,14 +123,12 @@ It should return a small JSON response with `"status": "ok"`.
 
 ## Production Notes
 
-Before real production use:
+Before production deployment:
 
-1. Replace placeholder contact information.
-2. Add real product photos and product datasheets.
-3. Save inquiries into PostgreSQL or MySQL instead of memory.
-4. Configure SMTP credentials for contact form email delivery.
-5. Add admin authentication before exposing `/api/admin/inquiries`.
-6. Configure domain, SSL, SEO metadata, and analytics.
+1. Configure Resend or SMTP credentials and a strict FRONTEND_ORIGIN.
+2. Use Redis for RATELIMIT_STORAGE_URI when running multiple backend instances.
+3. Run the backend tests and frontend production build before deployment.
+4. Monitor email delivery, rate-limit events, domain SSL, and Search Console indexing.
 
 
 ## Logo Update

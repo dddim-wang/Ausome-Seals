@@ -2,7 +2,7 @@ import os
 import re
 import smtplib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from email.message import EmailMessage
 from urllib import request as url_request
 from urllib.error import HTTPError, URLError
@@ -10,10 +10,13 @@ from urllib.error import HTTPError, URLError
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 DEFAULT_CONTACT_TO_EMAIL = "ausomeseals@gmail.com"
 RESEND_API_URL = "https://api.resend.com/emails"
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 
 def _env_bool(name, default=False):
@@ -124,48 +127,52 @@ def create_app():
     load_dotenv()
 
     app = Flask(__name__)
-    CORS(app, resources={r"/api/*": {"origins": os.getenv("FRONTEND_ORIGIN", "*")}})
+    app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_CONTACT_REQUEST_BYTES", "32768"))
+    app.config["RATELIMIT_ENABLED"] = _env_bool("RATELIMIT_ENABLED", True)
+    app.config["RATELIMIT_STORAGE_URI"] = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
 
-    inquiries = []
+    frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173").strip()
+    CORS(app, resources={r"/api/*": {"origins": frontend_origin}})
+
+    limiter.init_app(app)
+
+    @app.errorhandler(429)
+    def rate_limit_exceeded(_error):
+        return jsonify({"error": "too many requests; please try again later"}), 429
 
     @app.get("/api/health")
     def health():
         return jsonify({
             "status": "ok",
-            "service": "Ausome Seals Technology API"
+            "service": "Ausome Seals API"
         })
 
     @app.get("/api/products")
     def products():
-        return jsonify([
-            {
-                "id": 1,
-                "name": "Hydraulic Gate Seals",
-                "category": "Main sealing products",
-                "description": "Sealing products for steel production hydraulic gate equipment."
-            },
-            {
-                "id": 2,
-                "name": "Cylinder & Rod Seals",
-                "category": "Hydraulic cylinder seals",
-                "description": "Seals for rods, pistons, cylinders, and heavy-duty hydraulic movement."
-            },
-            {
-                "id": 3,
-                "name": "Guide Rings & Wipers",
-                "category": "Support components",
-                "description": "Support parts for alignment, dust protection, and system reliability."
-            }
-        ])
+        return jsonify([{
+            "id": 1,
+            "name": "Oil Seal",
+            "category": "Heavy machinery sealing products",
+            "description": "Large custom oil seals for rolling mill roll bearing areas and demanding industrial equipment."
+        }])
 
     @app.post("/api/contact")
+    @limiter.limit("5 per hour")
     def contact():
+        if not request.is_json:
+            return jsonify({"error": "application/json request required"}), 415
+
         data = request.get_json(silent=True) or {}
 
         name = str(data.get("name", "")).strip()
         company = str(data.get("company", "")).strip()
         email = str(data.get("email", "")).strip()
         message = str(data.get("message", "")).strip()
+        website = str(data.get("website", "")).strip()
+
+        # Bots commonly fill hidden website fields. Return success without sending mail.
+        if website:
+            return jsonify({"message": "Inquiry received"}), 201
 
         if not name or not email or not message:
             return jsonify({"error": "name, email, and message are required"}), 400
@@ -173,15 +180,23 @@ def create_app():
         if not EMAIL_RE.match(email):
             return jsonify({"error": "invalid email address"}), 400
 
+        field_limits = {
+            "name": (name, 120),
+            "company": (company, 200),
+            "email": (email, 254),
+            "message": (message, 5000),
+        }
+        for field_name, (value, maximum) in field_limits.items():
+            if len(value) > maximum:
+                return jsonify({"error": f"{field_name} is too long"}), 400
+
         inquiry = {
-            "id": len(inquiries) + 1,
             "name": name,
             "company": company,
             "email": email,
             "message": message,
-            "created_at": datetime.utcnow().isoformat() + "Z"
+            "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
-        inquiries.append(inquiry)
 
         try:
             send_contact_email(inquiry)
@@ -192,14 +207,6 @@ def create_app():
                 "details": str(exc) if app.debug else "email delivery failed"
             }), 503
 
-        return jsonify({
-            "message": "Inquiry received",
-            "inquiry": inquiry
-        }), 201
-
-    @app.get("/api/admin/inquiries")
-    def list_inquiries():
-        # Starter endpoint only. Add authentication before production use.
-        return jsonify(inquiries)
+        return jsonify({"message": "Inquiry received"}), 201
 
     return app

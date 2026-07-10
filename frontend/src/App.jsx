@@ -3,9 +3,7 @@ import { createRoot } from "react-dom/client";
 import {
   ShieldCheck,
   Factory,
-  Wrench,
   Droplets,
-  Gauge,
   Mail,
   Phone,
   MapPin,
@@ -58,12 +56,18 @@ import coop13 from "./assets/coop/coop13.jpg";
 import coop14 from "./assets/coop/coop14.jpg";
 import coop15 from "./assets/coop/coop15.jpg";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
 
 const translations = {
   en: {
     brandName: "Ausome Seals",
     brandSubtitle: "Heavy Machinery Sealing Solutions",
+    seoTitle: "Ausome Seals | Heavy Machinery Sealing Solutions",
+    seoDescription: "Custom oil seals and rubber sealing products for steel mills, heavy machinery, cylinders, pumps, gearboxes, and industrial equipment.",
+    openMenu: "Open navigation menu",
+    closeMenu: "Close navigation menu",
+    previousImage: "Previous image",
+    nextImage: "Next image",
     navProducts: "Products",
     navApplications: "Applications",
     navCooperation: "Partners",
@@ -90,18 +94,15 @@ const translations = {
     labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
 
     productsLabel: "Products",
-    productsTitle: "Heavy Machinery Seals",
     productsText: "Core products can be customized by material, profile, diameter, pressure, temperature, medium, and equipment interface.",
     catalogDownloadsLabel: "Product Catalog",
     catalogDownloadCn: "Chinese Catalog",
     catalogDownloadEn: "English Catalog",
 
     applicationsLabel: "Applications",
-    applicationsTitle: "Industrial Applications",
     applicationsText: "Beyond supplying sealing products, we provide technical support for seal installation, equipment operation, replacement review, and working-condition analysis to help maintenance teams improve reliability and reduce downtime risk.",
 
     cooperationLabel: "Partners",
-    cooperationTitle: "Who We Support",
     cooperationText: "Our products are used in rolling mill equipment across large steel plants in China, serving both private and state-owned enterprises. We are also expanding into more industrial sectors, providing sealing solutions for overseas equipment builders, heavy machinery users, and maintenance partners.",
 
     aboutLabel: "About",
@@ -111,6 +112,10 @@ const translations = {
     contactLabel: "Contact",
     contactTitle: "Request a Quote",
     contactText: "Check the catalog for model and size guide, or send us your size, conditions, application, or sample photo.",
+    nameLabel: "Name",
+    companyLabel: "Company",
+    emailLabel: "Email",
+    messageLabel: "Seal requirements",
     namePlaceholder: "Your name",
     companyPlaceholder: "Company",
     emailPlaceholder: "Email",
@@ -118,7 +123,7 @@ const translations = {
     submitInquiry: "Submit",
     sending: "Sending...",
     successMessage: "Message sent. We will contact you soon.",
-    errorMessage: "Unable to send right now. Please check backend connection.",
+    errorMessage: "Unable to send right now. Please try again later or contact us by email.",
 
     email: "ausomeseals@gmail.com",
     phone: "WhatsApp: +86 137-7661-6519",
@@ -155,6 +160,12 @@ const translations = {
   zh: {
     brandName: "Ausome Seals",
     brandSubtitle: "重型机械密封解决方案",
+    seoTitle: "Ausome Seals | 重型机械密封解决方案",
+    seoDescription: "为钢铁厂、重型机械、液压缸、泵、齿轮箱和工业设备提供定制油封与橡胶密封产品。",
+    openMenu: "打开导航菜单",
+    closeMenu: "关闭导航菜单",
+    previousImage: "上一张图片",
+    nextImage: "下一张图片",
     navProducts: "产品",
     navApplications: "应用场景",
     navCooperation: "合作伙伴",
@@ -181,18 +192,15 @@ const translations = {
     labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
 
     productsLabel: "产品系列",
-    productsTitle: "重型机械密封件",
     productsText: "核心产品可根据材料、截面形式、直径、压力、温度、介质以及设备接口进行定制。",
     catalogDownloadsLabel: "\u4ea7\u54c1\u624b\u518c",
     catalogDownloadCn: "\u4e2d\u6587\u624b\u518c",
     catalogDownloadEn: "\u82f1\u6587\u624b\u518c",
 
     applicationsLabel: "应用场景",
-    applicationsTitle: "工业应用场景",
     applicationsText: "我们不仅提供密封产品，也为客户提供产品安装、设备运行、替换评估和工况分析等技术服务支持，帮助检修团队提升设备可靠性并降低停机风险。",
 
     cooperationLabel: "合作伙伴",
-    cooperationTitle: "服务对象",
     cooperationText: "我们的产品已应用于中国各类大型钢铁厂轧机设备，客户覆盖民营企业与国有企业。我们也正向更多工业领域拓展，为海外设备制造商、重型机械用户和工业检修合作伙伴提供密封解决方案。",
 
     aboutLabel: "关于",
@@ -202,6 +210,10 @@ const translations = {
     contactLabel: "联系我们",
     contactTitle: "获取报价",
     contactText: "请先查看产品目录中的型号与尺寸指南，或发送所需尺寸、工况、使用场景或样品图片。",
+    nameLabel: "姓名",
+    companyLabel: "公司",
+    emailLabel: "邮箱",
+    messageLabel: "密封需求",
     namePlaceholder: "您的姓名",
     companyPlaceholder: "公司名称",
     emailPlaceholder: "邮箱",
@@ -209,7 +221,7 @@ const translations = {
     submitInquiry: "提交",
     sending: "发送中...",
     successMessage: "消息已发送，我们会尽快与您联系。",
-    errorMessage: "暂时无法发送，请检查后端连接。",
+    errorMessage: "暂时无法发送，请稍后重试或通过邮箱联系我们。",
 
     email: "ausomeseals@gmail.com",
     phone: "WhatsApp: +86 137-7661-6519",
@@ -285,7 +297,9 @@ function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
         <button
           className="mobile-menu-button"
           onClick={() => setMobileMenuOpen((open) => !open)}
-          aria-label="Toggle navigation menu"
+          aria-label={mobileMenuOpen ? t.closeMenu : t.openMenu}
+          aria-controls="mobile-navigation"
+          aria-expanded={mobileMenuOpen}
           type="button"
         >
           {mobileMenuOpen ? (
@@ -308,18 +322,6 @@ function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
 }
 
 function Hero({ t }) {
-  const [ringClicks, setRingClicks] = useState(0);
-
-  const handleRingClick = () => {
-    const nextClicks = ringClicks + 1;
-    setRingClicks(nextClicks);
-
-    if (nextClicks >= 5) {
-      window.open("https://aosimu.com/", "_blank");
-      setRingClicks(0);
-    }
-  };
-
   return (
     <section className="hero">
       <div className="container hero-grid">
@@ -359,12 +361,7 @@ function Hero({ t }) {
 
           <div className="diagram">
             <div className="gate gate-top"></div>
-            <button
-              className="seal-ring secret-ring"
-              onClick={handleRingClick}
-              type="button"
-              aria-label="Open hidden link"
-            />
+            <div className="seal-ring" aria-hidden="true" />
             <div className="gate gate-bottom"></div>
           </div>
 
@@ -376,53 +373,39 @@ function Hero({ t }) {
   );
 }
 
-function FactorySection({ t }) {
-  return (
-    <section className="section muted" id="factory">
-      <div className="container">
-        <div className="section-head">
-          <span>{t.factoryLabel}</span>
-          <h2>{t.factoryTitle}</h2>
-          <p>{t.factoryText}</p>
-        </div>
-        <div className="factory-grid">
-          {factoryImages.map((img, index) => (
-            <img src={img} alt={`Factory ${index + 1}`} key={index} className="factory-image" />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function LabSection({ t }) {
-  return (
-    <section className="section muted" id="lab">
-      <div className="container">
-        <div className="section-head">
-          <span>{t.labLabel}</span>
-          <h2>{t.labTitle}</h2>
-          <p>{t.labText}</p>
-        </div>
-        <div className="factory-grid">
-          {labImages.map((img, index) => (
-            <img src={img} alt={`Lab ${index + 1}`} key={index} className="factory-image" />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ProductSection({ t }) {
   const product = t.products[0];
+  const sectionRef = useRef(null);
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
-    productImages.forEach((src) => {
-      const image = new Image();
-      image.src = src;
-    });
+    const section = sectionRef.current;
+    if (!section) return undefined;
+
+    const preloadImages = () => {
+      productImages.forEach((src) => {
+        const image = new Image();
+        image.src = src;
+      });
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      preloadImages();
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          preloadImages();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   const prevImage = () => {
@@ -434,17 +417,17 @@ function ProductSection({ t }) {
   };
 
   return (
-    <section id="products" className="section">
+    <section id="products" className="section" ref={sectionRef}>
       <div className="container">
         <div className="section-head section-head-label-only">
-          <span>{t.productsLabel}</span>
+          <h2 className="section-label-title">{t.productsLabel}</h2>
           <p>{t.productsText}</p>
         </div>
 
         <div className="cards single-product">
           <article className="product-card featured-product" key={product.title}>
             <div className="product-carousel" aria-label={product.title}>
-              <button className="product-carousel-btn prev" onClick={prevImage} type="button" aria-label="Previous product image">
+              <button className="product-carousel-btn prev" onClick={prevImage} type="button" aria-label={t.previousImage}>
                 <ChevronLeft size={22} />
               </button>
 
@@ -452,11 +435,11 @@ function ProductSection({ t }) {
                 src={productImages[currentImage]}
                 alt={product.title}
                 className="product-image"
+                loading="lazy"
                 decoding="async"
-                fetchPriority="high"
               />
 
-              <button className="product-carousel-btn next" onClick={nextImage} type="button" aria-label="Next product image">
+              <button className="product-carousel-btn next" onClick={nextImage} type="button" aria-label={t.nextImage}>
                 <ChevronRight size={22} />
               </button>
 
@@ -529,7 +512,7 @@ function ApplicationSection({ t }) {
       <div className="container split">
         <div>
           <div className="section-head left section-head-label-only">
-            <span>{t.applicationsLabel}</span>
+            <h2 className="section-label-title">{t.applicationsLabel}</h2>
             <p>{t.applicationsText}</p>
           </div>
 
@@ -606,22 +589,25 @@ function CooperationSection({ t }) {
     window.addEventListener("resize", measure);
 
     let animationFrameId;
-    let previousTime = performance.now();
-    const speed = 36;
 
-    const animate = (time) => {
-      const elapsedSeconds = (time - previousTime) / 1000;
-      previousTime = time;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      let previousTime = performance.now();
+      const speed = 36;
 
-      if (!hasUserControlledRef.current && !isDraggingRef.current) {
-        offsetRef.current = normalizeOffset(offsetRef.current - speed * elapsedSeconds);
-        applyOffset();
-      }
+      const animate = (time) => {
+        const elapsedSeconds = (time - previousTime) / 1000;
+        previousTime = time;
+
+        if (!hasUserControlledRef.current && !isDraggingRef.current) {
+          offsetRef.current = normalizeOffset(offsetRef.current - speed * elapsedSeconds);
+          applyOffset();
+        }
+
+        animationFrameId = requestAnimationFrame(animate);
+      };
 
       animationFrameId = requestAnimationFrame(animate);
-    };
-
-    animationFrameId = requestAnimationFrame(animate);
+    }
 
     return () => {
       window.removeEventListener("resize", measure);
@@ -649,6 +635,11 @@ function CooperationSection({ t }) {
 
   const startInertia = () => {
     cancelAnimationFrame(inertiaFrameRef.current);
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      velocityRef.current = 0;
+      return;
+    }
 
     let previousTime = performance.now();
     const friction = 0.92;
@@ -715,7 +706,7 @@ function CooperationSection({ t }) {
     <section id="cooperation" className="section cooperation-section">
       <div className="container">
         <div className="section-head section-head-label-only">
-          <span>{t.cooperationLabel}</span>
+          <h2 className="section-label-title">{t.cooperationLabel}</h2>
           <p>{t.cooperationText}</p>
         </div>
       </div>
@@ -732,7 +723,14 @@ function CooperationSection({ t }) {
         <div className="coop-track" ref={trackRef}>
           {scrollingImages.map((image, index) => (
             <div className="coop-card" key={`${image}-${index}`}>
-              <img src={image} alt={`Cooperation partner ${index + 1}`} />
+              <img
+                src={image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                width="180"
+                height="180"
+              />
             </div>
           ))}
         </div>
@@ -758,16 +756,19 @@ function AboutSection({ t }) {
 
 function ContactSection({ t }) {
   const [status, setStatus] = useState("");
+  const [statusKind, setStatusKind] = useState("info");
   const [isSending, setIsSending] = useState(false);
   const [form, setForm] = useState({
     name: "",
     company: "",
     email: "",
     message: "",
+    website: "",
   });
 
   const update = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
   };
 
   async function submit(event) {
@@ -775,29 +776,37 @@ function ContactSection({ t }) {
     if (isSending) return;
 
     setIsSending(true);
+    setStatusKind("info");
     setStatus(t.sending);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(`${API_BASE}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
         throw new Error("Request failed");
       }
 
+      setStatusKind("success");
       setStatus(t.successMessage);
       setForm({
         name: "",
         company: "",
         email: "",
         message: "",
+        website: "",
       });
     } catch {
+      setStatusKind("error");
       setStatus(t.errorMessage);
     } finally {
+      window.clearTimeout(timeoutId);
       setIsSending(false);
     }
   }
@@ -814,10 +823,14 @@ function ContactSection({ t }) {
 
           <div className="contact-info">
             <p>
-              <Mail size={18} /> {t.email}
+              <Mail size={18} />
+              <a href={"mailto:" + t.email}>{t.email}</a>
             </p>
             <p>
-              <Phone size={18} /> {t.phone}
+              <Phone size={18} />
+              <a href="https://wa.me/8613776616519" target="_blank" rel="noreferrer">
+                {t.phone}
+              </a>
             </p>
             <p>
               <MapPin size={18} /> {t.location}
@@ -826,43 +839,78 @@ function ContactSection({ t }) {
         </div>
 
         <form className="contact-form" onSubmit={submit}>
+          <label htmlFor="contact-name">{t.nameLabel}</label>
           <input
+            id="contact-name"
             name="name"
+            autoComplete="name"
             placeholder={t.namePlaceholder}
             value={form.name}
             onChange={update}
+            maxLength={120}
             required
           />
 
+          <label htmlFor="contact-company">{t.companyLabel}</label>
           <input
+            id="contact-company"
             name="company"
+            autoComplete="organization"
             placeholder={t.companyPlaceholder}
             value={form.company}
             onChange={update}
+            maxLength={200}
           />
 
+          <label htmlFor="contact-email">{t.emailLabel}</label>
           <input
+            id="contact-email"
             name="email"
             type="email"
+            autoComplete="email"
             placeholder={t.emailPlaceholder}
             value={form.email}
             onChange={update}
+            maxLength={254}
             required
           />
 
+          <label htmlFor="contact-message">{t.messageLabel}</label>
           <textarea
+            id="contact-message"
             name="message"
             placeholder={t.messagePlaceholder}
             value={form.message}
             onChange={update}
+            maxLength={5000}
             required
           />
+
+          <div className="honeypot" aria-hidden="true">
+            <label htmlFor="contact-website">Website</label>
+            <input
+              id="contact-website"
+              name="website"
+              autoComplete="off"
+              tabIndex={-1}
+              value={form.website}
+              onChange={update}
+            />
+          </div>
 
           <button className="btn primary" type="submit" disabled={isSending}>
             {isSending ? t.sending : t.submitInquiry}
           </button>
 
-          {status && <p className="form-status">{status}</p>}
+          {status && (
+            <p
+              className={"form-status " + statusKind}
+              role={statusKind === "error" ? "alert" : "status"}
+              aria-live="polite"
+            >
+              {status}
+            </p>
+          )}
         </form>
       </div>
     </section>
@@ -918,6 +966,32 @@ function App() {
 
   const t = translations[lang];
 
+  useEffect(() => {
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    document.title = t.seoTitle;
+    const description = document.querySelector('meta[name="description"]');
+    description?.setAttribute("content", t.seoDescription);
+  }, [lang, t.seoDescription, t.seoTitle]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <>
       {mobileMenuOpen && (
@@ -925,11 +999,16 @@ function App() {
           className="menu-backdrop"
           onClick={closeMobileMenu}
           type="button"
-          aria-label="Close navigation menu"
+          aria-label={t.closeMenu}
         />
       )}
 
-      <nav className={mobileMenuOpen ? "mobile-nav-drawer open" : "mobile-nav-drawer"}>
+      <nav
+        id="mobile-navigation"
+        className={mobileMenuOpen ? "mobile-nav-drawer open" : "mobile-nav-drawer"}
+        aria-hidden={!mobileMenuOpen}
+        inert={!mobileMenuOpen}
+      >
         <a href="#products" onClick={closeMobileMenu}>{t.navProducts}</a>
         <a href="#applications" onClick={closeMobileMenu}>{t.navApplications}</a>
         <a href="#cooperation" onClick={closeMobileMenu}>{t.navCooperation}</a>
@@ -941,16 +1020,18 @@ function App() {
       <Hero t={t} />
       <ImageCarousel
         images={factoryImages}
-        tLabel={t.factoryLabel}
         tTitle={t.factoryTitle}
         tText={t.factoryText}
+        previousLabel={t.previousImage}
+        nextLabel={t.nextImage}
       />
 
       <ImageCarousel
         images={labImages}
-        tLabel={t.labLabel}
         tTitle={t.labTitle}
         tText={t.labText}
+        previousLabel={t.previousImage}
+        nextLabel={t.nextImage}
       />
       <ProductSection t={t} />
       <ApplicationSection t={t} />
@@ -963,15 +1044,20 @@ function App() {
   );
 }
 
-function ImageCarousel({ images, sectionTitle, sectionText, tLabel, tTitle, tText }) {
+function ImageCarousel({ images, tTitle, tText, previousLabel, nextLabel }) {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    images.forEach((src) => {
+    const adjacentIndexes = [
+      (current - 1 + images.length) % images.length,
+      (current + 1) % images.length,
+    ];
+
+    adjacentIndexes.forEach((index) => {
       const img = new Image();
-      img.src = src;
+      img.src = images[index];
     });
-  }, [images]);
+  }, [current, images]);
 
   const prev = () => {
     setCurrent((index) => (index - 1 + images.length) % images.length);
@@ -985,25 +1071,24 @@ function ImageCarousel({ images, sectionTitle, sectionText, tLabel, tTitle, tTex
     <section className="section muted carousel-section">
       <div className="container">
         <div className="section-head">
-          {tLabel && <span>{tLabel}</span>}
-          <h2>{tTitle || sectionTitle}</h2>
-          <p>{tText || sectionText}</p>
+          <h2>{tTitle}</h2>
+          <p>{tText}</p>
         </div>
 
         <div className="carousel-wrapper">
-          <button className="carousel-btn prev" onClick={prev} type="button">
+          <button className="carousel-btn prev" onClick={prev} type="button" aria-label={previousLabel}>
             &lt;
           </button>
 
           <img
             src={images[current]}
-            alt={`Slide ${current + 1}`}
+            alt={tTitle + " " + (current + 1)}
             className="carousel-image"
-            loading="eager"
+            loading="lazy"
             decoding="async"
           />
 
-          <button className="carousel-btn next" onClick={next} type="button">
+          <button className="carousel-btn next" onClick={next} type="button" aria-label={nextLabel}>
             &gt;
           </button>
         </div>

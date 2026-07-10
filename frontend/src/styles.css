@@ -318,20 +318,6 @@ h1 {
   z-index: 2;
 }
 
-.secret-ring {
-  cursor: pointer;
-  background: transparent;
-  padding: 0;
-  appearance: none;
-}
-
-.secret-ring:focus {
-  outline: none;
-}
-
-.secret-ring:active {
-  transform: scale(0.96);
-}
 
 .hero-card h3,
 .product-card h3,
@@ -373,7 +359,8 @@ h1 {
   margin-left: 0;
 }
 
-.section-head-label-only span {
+.section-head-label-only .section-label-title {
+  margin: 0;
   font-size: clamp(30px, 4vw, 46px);
   line-height: 1.05;
   letter-spacing: -0.04em;
@@ -406,6 +393,10 @@ h1 {
 
 /* Products */
 
+#products {
+  background: #ffffff;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -419,9 +410,12 @@ h1 {
 .product-card {
   padding: 30px;
   border-radius: 24px;
-  border: 1px solid rgba(16, 24, 39, 0.08);
-  box-shadow: 0 16px 38px rgba(16, 24, 39, 0.06);
-  background: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 54px rgba(16, 24, 39, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  background: linear-gradient(145deg, #454b53 0%, #272c33 100%);
+  color: #f8fafc;
 }
 
 .featured-product {
@@ -513,19 +507,24 @@ h1 {
   min-width: 0;
 }
 
+.product-card h3 {
+  color: #f8fafc;
+}
+
 .icon-box {
   width: 56px;
   height: 56px;
   border-radius: 16px;
   display: grid;
   place-items: center;
-  color: var(--primary);
-  background: var(--primary-soft);
+  color: #bcd4ff;
+  background: rgba(132, 174, 238, 0.14);
+  border: 1px solid rgba(188, 212, 255, 0.16);
   margin-bottom: 22px;
 }
 
 .product-card p {
-  color: #667085;
+  color: #d7dee7;
   line-height: 1.65;
 }
 
@@ -540,19 +539,24 @@ h1 {
   gap: 8px;
   align-items: center;
   margin-top: 10px;
-  color: #344054;
+  color: #f1f5f9;
   font-weight: 600;
 }
+
+.product-card li svg {
+  color: #9fc0f4;
+}
+
 .catalog-downloads {
   margin-top: 28px;
   padding-top: 24px;
-  border-top: 1px solid rgba(16, 24, 39, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .catalog-downloads span {
   display: block;
   margin-bottom: 12px;
-  color: #0d2140;
+  color: #f8fafc;
   font-weight: 700;
 }
 
@@ -716,13 +720,30 @@ h1 {
   color: #344054;
 }
 
+.contact-info a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .contact-form {
+  position: relative;
   padding: 32px;
   border-radius: 26px;
   background: #f7faff;
   border: 1px solid rgba(16, 24, 39, 0.08);
   display: grid;
-  gap: 14px;
+  gap: 8px;
+}
+
+.contact-form > label {
+  margin-top: 6px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.contact-form .btn {
+  margin-top: 8px;
 }
 
 input,
@@ -740,10 +761,34 @@ textarea {
   resize: vertical;
 }
 
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(47, 102, 194, 0.35);
+  outline-offset: 2px;
+}
+
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .form-status {
   color: var(--primary);
   font-weight: 700;
-  margin: 0;
+  margin: 6px 0 0;
+}
+
+.form-status.success {
+  color: #16733f;
+}
+
+.form-status.error {
+  color: #b42318;
 }
 
 /* Footer */
@@ -898,21 +943,28 @@ footer {
     min-height: 100vh;
     min-height: 100dvh;
     padding: 96px 16px 24px;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(220, 232, 249, 0.5);
     border-left: 1px solid rgba(16, 24, 39, 0.08);
     box-shadow: -14px 0 32px rgba(16, 24, 39, 0.12);
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
     z-index: 500;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     transition: right 0.28s ease;
     overflow-y: auto;
   }
 
+  .mobile-nav-drawer[aria-hidden="true"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .mobile-nav-drawer.open {
     right: 0;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .mobile-nav-drawer a {
@@ -1086,5 +1138,15 @@ footer {
 
   .carousel-btn.next {
     right: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .mobile-nav-drawer {
+    transition: none;
   }
 }
