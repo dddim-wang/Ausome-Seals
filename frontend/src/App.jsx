@@ -88,7 +88,7 @@ const translations = {
     heroCardText: "From sample-based replacement to drawing-based production, we support maintenance teams with seals matched to real equipment positions, dimensions, materials, and working conditions.",
 
     factoryTitle: "Manufacturing",
-    factoryText: "Based in Nanjing, China, our factory operates six oil seal production lines with high-specification equipment, experienced rubber sealing specialists, and professional storage for stable quality control.",
+    factoryText: "Based in Nanjing, China, our factory operates multiple oil seal production lines with high-specification equipment, experienced rubber sealing specialists, and professional storage for stable quality control.",
 
     labTitle: "Testing",
     labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
@@ -125,7 +125,7 @@ const translations = {
     successMessage: "Message sent. We will contact you soon.",
     errorMessage: "Unable to send right now. Please try again later or contact us by email.",
 
-    email: "ausomeseals@gmail.com",
+    email: "support@ausomeseals.com",
     phone: "WhatsApp: +86 137-7661-6519",
     location: "China / Global Customers",
     footerRights: "All rights reserved.",
@@ -186,7 +186,7 @@ const translations = {
     heroCardText: "支持来样替换、按图加工和工况确认，帮助设备检修团队根据设备位置、尺寸、材料和实际工况匹配合适的密封件。",
 
     factoryTitle: "生产制造",
-    factoryText: "我们的工厂位于中国南京，配备六条油封生产线，均采用高规格生产设备。生产环节由多位拥有十余年橡胶密封件制造经验的资深人员指导，并配套专业仓储环境，保障产品质量稳定。",
+    factoryText: "我们的工厂位于中国南京，配备多条油封生产线，均采用高规格生产设备。生产环节由多位拥有十余年橡胶密封件制造经验的资深人员指导，并配套专业仓储环境，保障产品质量稳定。",
 
     labTitle: "测试设施",
     labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
@@ -223,7 +223,7 @@ const translations = {
     successMessage: "消息已发送，我们会尽快与您联系。",
     errorMessage: "暂时无法发送，请稍后重试或通过邮箱联系我们。",
 
-    email: "ausomeseals@gmail.com",
+    email: "support@ausomeseals.com",
     phone: "WhatsApp: +86 137-7661-6519",
     location: "中国 / 全球客户",
     footerRights: "版权所有。",

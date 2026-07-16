@@ -49,13 +49,13 @@ http://localhost:5000/api/health
 The contact form sends every inquiry to:
 
 ```text
-ausomeseals@gmail.com
+support@ausomeseals.com
 ```
 
 Copy `backend/.env.example` to `backend/.env`, then fill in the Resend sender settings:
 
 ```env
-CONTACT_TO_EMAIL=ausomeseals@gmail.com
+CONTACT_TO_EMAIL=support@ausomeseals.com
 RESEND_API_KEY=re_your_api_key
 RESEND_FROM_EMAIL=Ausome Seals <onboarding@resend.dev>
 ```
@@ -99,7 +99,7 @@ If frontend and backend are deployed as separate Railway services, the frontend 
 Backend service variables:
 
 ```env
-CONTACT_TO_EMAIL=ausomeseals@gmail.com
+CONTACT_TO_EMAIL=support@ausomeseals.com
 RESEND_API_KEY=re_your_api_key
 RESEND_FROM_EMAIL=Ausome Seals <onboarding@resend.dev>
 FRONTEND_ORIGIN=https://your-frontend-domain

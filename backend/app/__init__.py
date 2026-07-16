@@ -14,7 +14,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-DEFAULT_CONTACT_TO_EMAIL = "ausomeseals@gmail.com"
+DEFAULT_CONTACT_TO_EMAIL = "support@ausomeseals.com"
 RESEND_API_URL = "https://api.resend.com/emails"
 limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
