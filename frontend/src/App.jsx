@@ -57,6 +57,18 @@ import coop14 from "./assets/coop/coop14.jpg";
 import coop15 from "./assets/coop/coop15.jpg";
 
 const API_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+const imagePreloadCache = new Map();
+
+function preloadImage(src) {
+  if (!imagePreloadCache.has(src)) {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = src;
+    imagePreloadCache.set(src, image);
+  }
+
+  return imagePreloadCache.get(src);
+}
 
 const translations = {
   en: {
@@ -287,7 +299,13 @@ function Header({ t, mobileMenuOpen, setMobileMenuOpen }) {
     <header className="site-header">
       <div className="container nav">
         <div className="brand">
-          <img src={logo} alt="Ausome logo" className="brand-logo" />
+          <img
+            src={logo}
+            alt="Ausome logo"
+            className="brand-logo"
+            loading="eager"
+            fetchPriority="high"
+          />
           <div>
             <strong>{t.brandName}</strong>
             <span>{t.brandSubtitle}</span>
@@ -357,7 +375,13 @@ function Hero({ t }) {
         </div>
 
         <div className="hero-card">
-          <img src={logo} alt="Ausome logo" className="hero-logo" />
+          <img
+            src={logo}
+            alt="Ausome logo"
+            className="hero-logo"
+            loading="eager"
+            fetchPriority="high"
+          />
 
           <div className="diagram">
             <div className="gate gate-top"></div>
@@ -383,10 +407,7 @@ function ProductSection({ t }) {
     if (!section) return undefined;
 
     const preloadImages = () => {
-      productImages.forEach((src) => {
-        const image = new Image();
-        image.src = src;
-      });
+      productImages.forEach(preloadImage);
     };
 
     if (!("IntersectionObserver" in window)) {
@@ -1050,16 +1071,41 @@ function ImageCarousel({ images, tTitle, tText, previousLabel, nextLabel }) {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const adjacentIndexes = [
+    const priorityIndexes = [
+      current,
       (current - 1 + images.length) % images.length,
       (current + 1) % images.length,
     ];
 
-    adjacentIndexes.forEach((index) => {
-      const img = new Image();
-      img.src = images[index];
-    });
+    priorityIndexes.forEach((index) => preloadImage(images[index]));
   }, [current, images]);
+
+  useEffect(() => {
+    let idleId;
+    let timeoutId;
+
+    const preloadRemaining = () => {
+      const run = () => images.forEach(preloadImage);
+
+      if ("requestIdleCallback" in window) {
+        idleId = window.requestIdleCallback(run, { timeout: 2000 });
+      } else {
+        timeoutId = window.setTimeout(run, 250);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      preloadRemaining();
+    } else {
+      window.addEventListener("load", preloadRemaining, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener("load", preloadRemaining);
+      if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
+  }, [images]);
 
   const prev = () => {
     setCurrent((index) => (index - 1 + images.length) % images.length);
