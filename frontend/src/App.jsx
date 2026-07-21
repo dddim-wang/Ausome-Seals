@@ -18,6 +18,7 @@ import {
 
 import logo from "./assets/logo.webp";
 import "./styles.css";
+import ChatWidget from "./ChatWidget";
 
 import product1 from "./assets/products/product1.webp";
 import product2 from "./assets/products/product2.webp";
@@ -1062,6 +1063,7 @@ function App() {
       <AboutSection t={t} />
       <ContactSection t={t} />
       <Footer t={t} />
+      <ChatWidget lang={lang} />
       <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
     </>
   );

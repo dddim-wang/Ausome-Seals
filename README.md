@@ -5,8 +5,9 @@ Bilingual company website for **Ausome Seals**, focused on custom oil seals and 
 ## Tech Stack
 
 - Frontend: React + Vite
-- Backend: Flask
-- API: REST endpoints for health check, products, and contact inquiry
+- Backend: FastAPI + Uvicorn
+- API: REST endpoints for health check, products, contact inquiry, and chat
+- AI: provider-agnostic chat service skeleton with DeepSeek and a local stub provider
 
 ## Project Structure
 
@@ -17,7 +18,10 @@ Ausome/
     src/styles.css
     package.json
   backend/
-    app/__init__.py
+    app/main.py
+    app/api/
+    app/ai/
+    app/models/
     run.py
     requirements.txt
 ```
@@ -44,6 +48,62 @@ Test:
 http://localhost:5000/api/health
 ```
 
+Interactive API documentation:
+
+```text
+http://localhost:5000/docs
+```
+
+## Minimal Chat API
+
+The chat service supports DeepSeek in production and a local `stub` provider for
+offline development and tests. The regular endpoint returns one JSON response.
+
+```http
+POST /api/chat
+Content-Type: application/json
+
+{
+  "conversation_id": "optional-client-conversation-id",
+  "messages": [
+    {"role": "user", "content": "How do I choose an oil seal?"}
+  ]
+}
+```
+
+For incremental output, send the same payload to `POST /api/chat/stream`. The
+response uses Server-Sent Events with `meta`, `delta`, `done`, and `error` events.
+
+Configure the provider in `backend/.env`:
+
+```env
+AI_PROVIDER=deepseek
+DEEPSEEK_API_KEY=your_deepseek_api_key
+DEEPSEEK_MODEL=deepseek-v4-pro
+```
+
+The backend separates the public chat API, request/response models, AI service,
+and provider implementation so a production provider can be added without
+changing the frontend API contract.
+
+## PDF Knowledge Base (RAG)
+
+RAG is enabled by default when `AI_PROVIDER=deepseek`. Knowledge PDFs are grouped by filename:
+
+- `Ausome*.pdf`: Ausome company information, products, specifications, and model questions.
+- `Oilseal*.pdf` or `Oilseals*.pdf`: general oil-seal principles, materials, installation, selection, and failure questions.
+
+The service searches `backend/knowledge`, the project-level `knowledge` folder, and then `backend/tests/knowledge`. Override the location when needed:
+
+```env
+RAG_ENABLED=true
+RAG_KNOWLEDGE_DIR=knowledge
+RAG_RESULT_LIMIT=5
+```
+
+The first RAG request extracts the PDFs and writes a local cache to `backend/.cache/rag-index.json`. Later starts reuse the cache until a PDF changes. Answers receive only documents from the selected knowledge group and are instructed to cite the PDF filename and page number.
+
+The current Ausome Chinese catalog is image-only, so searchable product facts come from its English counterpart. The Chinese and English general oil-seal references both contain searchable text.
 ## Contact Form Email
 
 The contact form sends every inquiry to:

@@ -4,3 +4,6 @@ dist/
 __pycache__/
 .env
 .DS_Store
+backend/.env
+backend/.cache/
+.venv-rag/
