@@ -13,10 +13,10 @@ def health():
 def products():
     return [{
         "id": 1,
-        "name": "Oil Seal",
-        "category": "Heavy machinery sealing products",
+        "name": "Rolling Mill Seals",
+        "category": "Steel rolling mill sealing products",
         "description": (
-            "Large custom oil seals for rolling mill roll bearing areas and "
-            "demanding industrial equipment."
+            "Heavy-duty oil seals, water seals, fabric-reinforced seals, split seals, "
+            "and custom sealing products for steel rolling mill equipment."
         ),
     }]

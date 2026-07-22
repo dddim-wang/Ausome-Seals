@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import {
   ShieldCheck,
   Factory,
+  FlaskConical,
   Droplets,
   Mail,
   Phone,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 
 import logo from "./assets/logo.webp";
+import heroRollingMill from "./assets/hero-rolling-mill.webp";
 import "./styles.css";
 import ChatWidget from "./ChatWidget";
 
@@ -74,9 +76,9 @@ function preloadImage(src) {
 const translations = {
   en: {
     brandName: "Ausome Seals",
-    brandSubtitle: "Heavy Machinery Sealing Solutions",
-    seoTitle: "Ausome Seals | Heavy Machinery Sealing Solutions",
-    seoDescription: "Custom oil seals and rubber sealing products for steel mills, heavy machinery, cylinders, pumps, gearboxes, and industrial equipment.",
+    brandSubtitle: "Rolling Mill Sealing Solutions",
+    seoTitle: "Ausome Seals | Rolling Mill Seals",
+    seoDescription: "Heavy-duty oil seals, water seals, fabric-reinforced seals, split seals, and custom sealing products for steel rolling mills.",
     openMenu: "Open navigation menu",
     closeMenu: "Close navigation menu",
     previousImage: "Previous image",
@@ -86,22 +88,21 @@ const translations = {
     navCooperation: "Partners",
     navAbout: "About",
     navContact: "Contact",
-    heroEyebrow: "Custom sealing solutions for heavy machinery and industrial hydraulics",
-    heroTitle: "Heavy Machinery Sealing Solutions.",
-    heroText: "Ausome Seals provides sealing solutions across various industrial applications through its expertise in leakage control and custom sealing design. Our product lineup includes oil seals and other rubber-based sealing products for steel mills, heavy machinery, cylinders, pumps, gearboxes, and demanding production equipment.",
+    heroEyebrow: "Heavy-duty sealing products for steel rolling mills",
+    heroTitle: "Rolling Mill Sealing Solutions",
+    heroText: "Ausome Seals specializes in heavy-duty seals for steel rolling mills. Our product range includes oil seals, water seals, fabric-reinforced seals, split seals, and custom sealing products engineered to control leakage and perform reliably in demanding mill conditions.",
     viewProducts: "View Products",
     requestQuote: "Request a Quote",
-    steel: "Heavy Machinery",
+    steel: "Steel Rolling Mills",
     industryFocus: "Industry Focus",
     custom: "Custom",
     sealDesign: "Seal Design",
     technicalSupport: "Technical Support",
     supportItems: ["Seal installation", "Replacement review", "Working-condition analysis"],
-    heroCardTitle: "Custom-fit sealing",
-    heroCardText: "From sample-based replacement to drawing-based production, we support maintenance teams with seals matched to real equipment positions, dimensions, materials, and working conditions.",
+    heroImageAlt: "Steel rolling mill equipment",
 
     factoryTitle: "Manufacturing",
-    factoryText: "Based in Nanjing, China, our factory operates multiple oil seal production lines with high-specification equipment, experienced rubber sealing specialists, and professional storage for stable quality control.",
+    factoryText: "Based in Nanjing, China, our factory operates multiple production lines for oil seals and other rubber sealing products, supported by high-specification equipment, experienced specialists, and professional storage for stable quality control.",
 
     labTitle: "Testing",
     labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
@@ -116,11 +117,11 @@ const translations = {
     applicationsText: "Beyond supplying sealing products, we provide technical support for seal installation, equipment operation, replacement review, and working-condition analysis to help maintenance teams improve reliability and reduce downtime risk.",
 
     cooperationLabel: "Partners",
-    cooperationText: "Our products are used in rolling mill equipment across large steel plants in China, serving both private and state-owned enterprises. We are also expanding into more industrial sectors, providing sealing solutions for overseas equipment builders, heavy machinery users, and maintenance partners.",
+    cooperationText: "Our products serve major steel plants across China, from private enterprises to state-owned groups. We also maintain long-term OEM supply relationships with CISDI and CFHI, leaders in metallurgical engineering and heavy equipment, while expanding support for international steel producers, equipment manufacturers, and maintenance partners.",
 
     aboutLabel: "About",
     aboutTitle: "Built for Demanding Conditions.",
-    aboutText: "Based in China, Ausome Seals is a sealing product manufacturer with years of experience in heavy equipment sealing applications for steel plants. Through long-term cooperation with equipment users, maintenance teams, and manufacturing partners, we have built practical technical knowledge in seal selection, replacement, installation, and on-site application support. We are now bringing this manufacturing experience and service capability to international industrial customers.",
+    aboutText: "Based in China, Ausome Seals is a sealing product manufacturer with 11 years of experience in sealing applications for large steel rolling mill equipment. Long-term cooperation with steel producers, maintenance teams, and equipment partners has given us a deep understanding of real operating conditions and extensive expertise across the full process, from seal material formulation and production to installation and resolving issues encountered in actual use. We are now bringing this manufacturing and application experience to international rolling mill customers.",
 
     contactLabel: "Contact",
     contactTitle: "Request a Quote",
@@ -128,11 +129,11 @@ const translations = {
     nameLabel: "Name",
     companyLabel: "Company",
     emailLabel: "Email",
-    messageLabel: "Seal requirements",
+    messageLabel: "Requirements",
     namePlaceholder: "Your name",
     companyPlaceholder: "Company",
     emailPlaceholder: "Email",
-    messagePlaceholder: "Size, conditions, application, sample photo",
+    messagePlaceholder: "",
     submitInquiry: "Submit",
     sending: "Sending...",
     successMessage: "Message sent. We will contact you soon.",
@@ -144,37 +145,27 @@ const translations = {
     footerRights: "All rights reserved.",
 
     products: [
-  {
-    title: "Oil Seal",
-    desc: "Large oil seals for rolling mill roll bearing areas in steel plants. For more models and sizes, please download and review our product catalog.",
-    features: ["Abrasive-resistant", "High-temperature resistant", "Drawing-based", "Custom profiles"],
-  },
-  {
-    title: "Hydraulic & Cylinder Seals",
-    desc: "Precision seals for hydraulic equipment, cylinders, rods, pistons, and heavy-duty motion systems in industrial production lines.",
-    features: ["Pressure-resistant", "Low leakage", "Long service life"],
-  },
-  {
-    title: "Guide Rings, Wipers & Wear Parts",
-    desc: "Supporting components for alignment, contamination control, dust protection, and system protection in harsh machinery environments.",
-    features: ["Reduced friction", "Scale protection", "Reliable guidance"],
-  },
-],
+      {
+        title: "Rolling Mill Seals",
+        desc: "Heavy-duty oil seals, water seals, fabric-reinforced seals, split seals, and custom seals for steel rolling mill equipment. Download the catalog for available series, models, and sizes.",
+        features: ["Oil & water seals", "Fabric-reinforced", "Split options", "Custom profiles"],
+      },
+    ],
     applications: [
-  "Heavy machinery and production equipment",
-  "Bearing housings and rotating equipment",
-  "Hydraulic equipment and cylinders",
-  "Mill stands and bearing areas",
-  "Mining, metallurgy, and material handling equipment",
-  "Hydraulic gate equipment",
-],
+      "Hot rolling mills",
+      "Cold rolling mills",
+      "Plate mills",
+      "Bar and wire rod mills",
+      "Mill stands and bearing areas",
+      "Roll necks and bearing chocks",
+    ],
   },
 
   zh: {
     brandName: "Ausome Seals",
-    brandSubtitle: "重型机械密封解决方案",
-    seoTitle: "Ausome Seals | 重型机械密封解决方案",
-    seoDescription: "为钢铁厂、重型机械、液压缸、泵、齿轮箱和工业设备提供定制油封与橡胶密封产品。",
+    brandSubtitle: "轧机密封解决方案",
+    seoTitle: "Ausome Seals | 轧机用密封件",
+    seoDescription: "面向钢铁轧机的重载油封、水封、夹布密封、剖分式密封及定制密封产品。",
     openMenu: "打开导航菜单",
     closeMenu: "关闭导航菜单",
     previousImage: "上一张图片",
@@ -184,22 +175,21 @@ const translations = {
     navCooperation: "合作伙伴",
     navAbout: "关于我们",
     navContact: "联系我们",
-    heroEyebrow: "面向重型机械与工业液压系统的定制密封",
-    heroTitle: "重型机械密封解决方案。",
-    heroText: "Ausome Seals 凭借泄漏控制和定制密封设计经验，为多类工业应用提供密封解决方案。产品包括油封以及其他橡胶类密封产品，适用于钢厂、重型机械、液压缸、泵、齿轮箱和严苛工况生产设备。",
+    heroEyebrow: "面向钢铁轧机的重载密封产品",
+    heroTitle: "轧机密封解决方案",
+    heroText: "Ausome Seals 专注于钢铁轧机用重载密封件。产品涵盖油封、水封、夹布密封、剖分式密封及定制密封产品，适用于轧机严苛工况下的泄漏控制与稳定运行。",
     viewProducts: "查看产品",
     requestQuote: "获取报价",
-    steel: "重型机械",
+    steel: "钢铁轧机",
     industryFocus: "行业专注",
     custom: "定制",
     sealDesign: "密封设计",
     technicalSupport: "技术支持",
     supportItems: ["密封安装", "替换评估", "工况分析"],
-    heroCardTitle: "定制适配密封",
-    heroCardText: "支持来样替换、按图加工和工况确认，帮助设备检修团队根据设备位置、尺寸、材料和实际工况匹配合适的密封件。",
+    heroImageAlt: "钢铁轧机设备",
 
     factoryTitle: "生产制造",
-    factoryText: "我们的工厂位于中国南京，配备多条油封生产线，均采用高规格生产设备。生产环节由多位拥有十余年橡胶密封件制造经验的资深人员指导，并配套专业仓储环境，保障产品质量稳定。",
+    factoryText: "我们的工厂位于中国南京，配备多条油封及其他橡胶密封件生产线，采用高规格生产设备，由拥有十余年经验的橡胶密封件专业人员提供生产指导，并配套专业仓储环境，保障产品质量稳定。",
 
     labTitle: "测试设施",
     labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
@@ -214,11 +204,11 @@ const translations = {
     applicationsText: "我们不仅提供密封产品，也为客户提供产品安装、设备运行、替换评估和工况分析等技术服务支持，帮助检修团队提升设备可靠性并降低停机风险。",
 
     cooperationLabel: "合作伙伴",
-    cooperationText: "我们的产品已应用于中国各类大型钢铁厂轧机设备，客户覆盖民营企业与国有企业。我们也正向更多工业领域拓展，为海外设备制造商、重型机械用户和工业检修合作伙伴提供密封解决方案。",
+    cooperationText: "我们的产品服务于中国多家大型钢铁企业，覆盖民营与国有企业，并与中冶赛迪、中国一重建立了长期 OEM 供货关系。我们正向国际市场拓展，为海外钢铁企业、轧机设备制造商和检修合作伙伴提供密封解决方案。",
 
     aboutLabel: "关于",
     aboutTitle: "面向严苛工况。",
-    aboutText: "Ausome Seals是一家位于中国的密封产品制造企业，多年来专注于钢厂重型设备密封应用。通过与设备使用方、检修团队和制造合作伙伴的长期合作，我们积累了丰富的密封选型、替换、安装和现场应用技术经验。现在，我们正将这些制造经验与服务能力带向国际工业客户。",
+    aboutText: "Ausome Seals 是一家位于中国的密封产品制造企业，拥有 11 年大型钢铁轧机设备密封经验。通过与钢铁企业、检修团队和设备合作伙伴的长期合作，我们深入了解实际工况，并在密封材料配方、生产制造、安装以及实际使用问题处理等从生产到应用的全过程积累了丰富经验。现在，我们正将这些制造与应用经验带向国际轧机客户。",
 
     contactLabel: "联系我们",
     contactTitle: "获取报价",
@@ -226,11 +216,11 @@ const translations = {
     nameLabel: "姓名",
     companyLabel: "公司",
     emailLabel: "邮箱",
-    messageLabel: "密封需求",
+    messageLabel: "需求",
     namePlaceholder: "您的姓名",
     companyPlaceholder: "公司名称",
     emailPlaceholder: "邮箱",
-    messagePlaceholder: "尺寸、工况、使用场景、样品图片",
+    messagePlaceholder: "",
     submitInquiry: "提交",
     sending: "发送中...",
     successMessage: "消息已发送，我们会尽快与您联系。",
@@ -243,29 +233,19 @@ const translations = {
 
     products: [
       {
-        title: "重型机械密封件",
-        desc: "图例为大型油封，适用于钢铁厂轧机轧辊轴承区域。更多型号和尺寸，请下载查看产品目录。",
-        features: ["耐磨污染", "耐高温", "按图加工", "定制截面"],
-      },
-      {
-        title: "液压系统与液压缸密封件",
-        desc: "适用于工业液压设备、液压缸、活塞杆、活塞和重载运动系统的精密密封件。",
-        features: ["耐高压", "低泄漏", "寿命稳定"],
-      },
-      {
-        title: "导向环、防尘圈与耐磨件",
-        desc: "用于严苛机械环境中的导向、污染控制、防尘保护和系统防护的辅助组件。",
-        features: ["降低摩擦", "防磨粒污染", "导向可靠"],
+        title: "轧机用密封件",
+        desc: "面向钢铁轧机设备的重载油封、水封、夹布密封、剖分式密封及定制密封产品。可下载产品目录查看系列、型号与尺寸。",
+        features: ["油封与水封", "夹布增强", "剖分结构", "定制截面"],
       },
     ],
 
     applications: [
-      "重型机械与生产设备",
-      "轴承座与旋转设备",
-      "工业液压设备与液压缸",
+      "热轧机",
+      "冷轧机",
+      "中厚板轧机",
+      "棒材与线材轧机",
       "轧机机架与轴承区域",
-      "矿山、冶金与物料搬运设备",
-      "液压闸机设备",
+      "轧辊轴颈与轴承座",
     ],
   },
 };
@@ -349,8 +329,6 @@ function Hero({ t }) {
             <ShieldCheck size={18} />
             {t.heroEyebrow}
           </div>
-
-          <h1>{t.heroTitle}</h1>
           {t.heroText && <p>{t.heroText}</p>}
 
           <div className="hero-actions">
@@ -367,31 +345,32 @@ function Hero({ t }) {
               <strong>{t.steel}</strong>
               <span>{t.industryFocus}</span>
             </div>
-            <div>
-              <strong>{t.custom}</strong>
-              <span>{t.sealDesign}</span>
+            <div className="stat-navigation">
+              <a href="#manufacturing" className="stat-link-button primary-stat-link">
+                <Factory size={17} />
+                <span>{t.factoryTitle}</span>
+              </a>
+              <a href="#testing" className="stat-link-button secondary-stat-link">
+                <FlaskConical size={17} />
+                <span>{t.labTitle}</span>
+              </a>
             </div>
 
           </div>
         </div>
 
-        <div className="hero-card">
+        <div className="hero-card hero-mill-card">
           <img
-            src={logo}
-            alt="Ausome logo"
-            className="hero-logo"
+            src={heroRollingMill}
+            alt={t.heroImageAlt}
+            className="hero-mill-image"
             loading="eager"
             fetchPriority="high"
           />
 
-          <div className="diagram">
-            <div className="gate gate-top"></div>
-            <div className="seal-ring" aria-hidden="true" />
-            <div className="gate gate-bottom"></div>
+          <div className="hero-mill-content">
+            <h1>{t.heroTitle}</h1>
           </div>
-
-          <h3>{t.heroCardTitle}</h3>
-          <p>{t.heroCardText}</p>
         </div>
       </div>
     </section>
@@ -1043,6 +1022,7 @@ function App() {
       <Header t={t} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
       <Hero t={t} />
       <ImageCarousel
+        sectionId="manufacturing"
         images={factoryImages}
         tTitle={t.factoryTitle}
         tText={t.factoryText}
@@ -1051,6 +1031,7 @@ function App() {
       />
 
       <ImageCarousel
+        sectionId="testing"
         images={labImages}
         tTitle={t.labTitle}
         tText={t.labText}
@@ -1069,7 +1050,7 @@ function App() {
   );
 }
 
-function ImageCarousel({ images, tTitle, tText, previousLabel, nextLabel }) {
+function ImageCarousel({ sectionId, images, tTitle, tText, previousLabel, nextLabel }) {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -1118,7 +1099,7 @@ function ImageCarousel({ images, tTitle, tText, previousLabel, nextLabel }) {
   };
 
   return (
-    <section className="section muted carousel-section">
+    <section id={sectionId} className="section muted carousel-section">
       <div className="container">
         <div className="section-head">
           <h2>{tTitle}</h2>

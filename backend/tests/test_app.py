@@ -33,7 +33,7 @@ class ContactApiTests(ApiTestCase):
         self.assertEqual(health.json()["service"], "Ausome Seals API")
         self.assertEqual(products.status_code, 200)
         self.assertEqual(len(products.json()), 1)
-        self.assertEqual(products.json()[0]["name"], "Oil Seal")
+        self.assertEqual(products.json()[0]["name"], "Rolling Mill Seals")
 
     def test_admin_inquiries_endpoint_is_not_exposed(self):
         response = self.client.get("/api/admin/inquiries")

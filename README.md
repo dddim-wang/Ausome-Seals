@@ -1,6 +1,6 @@
 # Ausome Seals Website
 
-Bilingual company website for **Ausome Seals**, focused on custom oil seals and rubber sealing products for steel mills, heavy machinery, hydraulic systems, and demanding industrial equipment.
+Bilingual company website for **Ausome Seals**, focused on heavy-duty oil seals, water seals, fabric-reinforced seals, split seals, and custom sealing products for steel rolling mills.
 
 ## Tech Stack
 
