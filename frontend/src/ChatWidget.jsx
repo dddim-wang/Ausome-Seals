@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  MessageCircle,
   SendHorizontal,
-  Sparkles,
   Square,
   X,
 } from "lucide-react";
@@ -19,7 +17,7 @@ const copy = {
     title: "Ausome AI Assistant",
     subtitle: "Rolling mill seal selection",
     greeting: "Hello! Tell me your rolling mill type, seal series or size, equipment position, medium, pressure, and temperature. I can help you narrow down the options.",
-    placeholder: "Describe your rolling mill sealing requirement…",
+    inputLabel: "Message",
     send: "Send message",
     stop: "Stop response",
     thinking: "Reviewing your requirements…",
@@ -32,7 +30,7 @@ const copy = {
     title: "Ausome AI 助手",
     subtitle: "轧机密封选型支持",
     greeting: "您好！请告诉我轧机类型、密封系列或尺寸、设备位置、介质、压力和温度，我会协助您缩小选型范围。",
-    placeholder: "描述您的轧机密封需求…",
+    inputLabel: "消息",
     send: "发送消息",
     stop: "停止回答",
     thinking: "正在分析您的需求…",
@@ -55,6 +53,16 @@ function parseSseEvent(block) {
 
 function makeId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function SealRingIcon({ size = 26 }) {
+  return (
+    <span
+      className="seal-ring-icon"
+      style={{ "--seal-ring-size": `${size}px` }}
+      aria-hidden="true"
+    />
+  );
 }
 
 export default function ChatWidget({ lang }) {
@@ -218,7 +226,7 @@ export default function ChatWidget({ lang }) {
       >
           <header className="ai-chat-header">
             <span className="ai-chat-mark" aria-hidden="true">
-              <Sparkles size={33} />
+              <SealRingIcon size={30} />
             </span>
             <div>
               <strong>{t.title}</strong>
@@ -278,7 +286,7 @@ export default function ChatWidget({ lang }) {
                   sendMessage(event);
                 }
               }}
-              placeholder={t.placeholder}
+              aria-label={t.inputLabel}
               maxLength={2000}
               rows={1}
               disabled={isStreaming}
@@ -304,7 +312,7 @@ export default function ChatWidget({ lang }) {
         aria-label={isOpen ? t.close : t.open}
         title={isOpen ? t.close : t.open}
       >
-        {isOpen ? <X size={24} /> : <MessageCircle size={25} />}
+        {isOpen ? <X size={24} /> : <SealRingIcon size={26} />}
         {!isOpen && <span>{t.open}</span>}
       </button>
     </div>

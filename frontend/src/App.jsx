@@ -98,6 +98,7 @@ const translations = {
     custom: "Custom",
     sealDesign: "Seal Design",
     technicalSupport: "Technical Support",
+    capabilitiesLabel: "Our Capabilities",
     supportItems: ["Seal installation", "Replacement review", "Working-condition analysis"],
     heroImageAlt: "Steel rolling mill equipment",
 
@@ -106,6 +107,30 @@ const translations = {
 
     labTitle: "Testing",
     labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
+    testingDetails: {
+      openLabel: "Explore Testing & Quality Control",
+      closeLabel: "Hide Testing Details",
+      title: "Testing & Quality Control",
+      intro: "For large, heavy-duty rotary shaft seals, particularly those with an outer diameter of 150 mm or above, our production and inspection procedures follow the applicable requirements of GB/T 13871.1.",
+      items: [
+        {
+          title: "Process Control",
+          text: "Quality control covers incoming materials, metal-case preparation, rubber mixing and filtration, controlled vacuum vulcanization, trimming, spring assembly, laser marking, and final inspection.",
+        },
+        {
+          title: "Batch Inspection",
+          text: "Each batch is checked for appearance, critical dimensions, lip interference, concentricity, rubber hardness, and spring tension. Roundness and concentricity receive particular attention on large-diameter seals.",
+        },
+        {
+          title: "Performance Validation",
+          text: "Depending on the seal design and project requirements, validation may include tensile and elongation tests, compression set, oil resistance, heat aging, low-temperature performance, leakage, bonding strength, and rotary endurance.",
+        },
+        {
+          title: "Operating-Condition Simulation",
+          text: "Customized equipment can reproduce shaft speed, oil temperature, pressure, and operating media to evaluate sealing performance and durability before production approval.",
+        },
+      ],
+    },
 
     productsLabel: "Products",
     productsText: "Core products can be customized by material, profile, diameter, pressure, temperature, medium, and equipment interface.",
@@ -185,6 +210,7 @@ const translations = {
     custom: "定制",
     sealDesign: "密封设计",
     technicalSupport: "技术支持",
+    capabilitiesLabel: "核心能力",
     supportItems: ["密封安装", "替换评估", "工况分析"],
     heroImageAlt: "钢铁轧机设备",
 
@@ -193,6 +219,30 @@ const translations = {
 
     labTitle: "测试设施",
     labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
+    testingDetails: {
+      openLabel: "查看测试与质量控制",
+      closeLabel: "收起测试详情",
+      title: "测试与质量控制",
+      intro: "对于外径 150 mm 及以上的大型重载旋转轴密封件，我们的生产与检验流程遵循 GB/T 13871.1 的适用要求。",
+      items: [
+        {
+          title: "过程控制",
+          text: "质量控制覆盖原材料入厂、金属骨架处理、橡胶混炼与过滤、可控真空硫化、修边、弹簧装配、激光标识及最终检验。",
+        },
+        {
+          title: "批次检验",
+          text: "每批产品均检查外观、关键尺寸、唇口过盈量、同心度、橡胶硬度和弹簧张力；大型密封件尤其重视圆度与同心度。",
+        },
+        {
+          title: "性能验证",
+          text: "根据密封结构和项目要求，可进行拉伸与伸长率、压缩永久变形、耐油、热老化、低温、泄漏、粘接强度及旋转耐久测试。",
+        },
+        {
+          title: "工况模拟",
+          text: "定制测试设备可模拟轴转速、油温、压力和工作介质，在产品投入生产使用前评估密封性能与耐久性。",
+        },
+      ],
+    },
 
     productsLabel: "产品系列",
     productsText: "核心产品可根据材料、截面形式、直径、压力、温度、介质以及设备接口进行定制。",
@@ -340,22 +390,20 @@ function Hero({ t }) {
             </a>
           </div>
 
-          <div className="stats">
-            <div>
-              <strong>{t.steel}</strong>
-              <span>{t.industryFocus}</span>
-            </div>
-            <div className="stat-navigation">
-              <a href="#manufacturing" className="stat-link-button primary-stat-link">
-                <Factory size={17} />
-                <span>{t.factoryTitle}</span>
-              </a>
-              <a href="#testing" className="stat-link-button secondary-stat-link">
-                <FlaskConical size={17} />
-                <span>{t.labTitle}</span>
-              </a>
-            </div>
-
+          <div className="capability-index">
+            <span className="capability-index-heading">{t.capabilitiesLabel}</span>
+            <a href="#manufacturing" className="capability-index-link">
+              <span className="capability-index-number">01</span>
+              <Factory size={18} />
+              <span className="capability-index-title">{t.factoryTitle}</span>
+              <ArrowRight className="capability-index-arrow" size={18} />
+            </a>
+            <a href="#testing" className="capability-index-link">
+              <span className="capability-index-number">02</span>
+              <FlaskConical size={18} />
+              <span className="capability-index-title">{t.labTitle}</span>
+              <ArrowRight className="capability-index-arrow" size={18} />
+            </a>
           </div>
         </div>
 
@@ -1035,6 +1083,7 @@ function App() {
         images={labImages}
         tTitle={t.labTitle}
         tText={t.labText}
+        details={t.testingDetails}
         previousLabel={t.previousImage}
         nextLabel={t.nextImage}
       />
@@ -1050,8 +1099,9 @@ function App() {
   );
 }
 
-function ImageCarousel({ sectionId, images, tTitle, tText, previousLabel, nextLabel }) {
+function ImageCarousel({ sectionId, images, tTitle, tText, details, previousLabel, nextLabel }) {
   const [current, setCurrent] = useState(0);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     const priorityIndexes = [
@@ -1104,7 +1154,40 @@ function ImageCarousel({ sectionId, images, tTitle, tText, previousLabel, nextLa
         <div className="section-head">
           <h2>{tTitle}</h2>
           <p>{tText}</p>
+          {details && (
+            <button
+              className="testing-details-trigger"
+              type="button"
+              aria-expanded={detailsOpen}
+              aria-controls={`${sectionId}-details`}
+              onClick={() => setDetailsOpen((open) => !open)}
+            >
+              <CheckCircle2 size={18} />
+              {detailsOpen ? details.closeLabel : details.openLabel}
+              <ChevronRight className={detailsOpen ? "details-chevron open" : "details-chevron"} size={17} />
+            </button>
+          )}
         </div>
+
+        {details && detailsOpen && (
+          <div id={`${sectionId}-details`} className="testing-details-panel">
+            <div className="testing-details-intro">
+              <h3>{details.title}</h3>
+              <p>{details.intro}</p>
+            </div>
+            <div className="testing-details-grid">
+              {details.items.map((item, index) => (
+                <article key={item.title}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h4>{item.title}</h4>
+                    <p>{item.text}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="carousel-wrapper">
           <button className="carousel-btn prev" onClick={prev} type="button" aria-label={previousLabel}>

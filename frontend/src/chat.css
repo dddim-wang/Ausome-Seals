@@ -34,6 +34,26 @@
   box-shadow: 0 18px 40px rgba(23, 56, 111, 0.38);
 }
 
+.seal-ring-icon {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 var(--seal-ring-size);
+  width: var(--seal-ring-size);
+  height: var(--seal-ring-size);
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.seal-ring-icon::before {
+  position: absolute;
+  inset: 5px;
+  content: "";
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
 .ai-chat.open .ai-chat-toggle {
   width: 48px;
   min-width: 48px;
