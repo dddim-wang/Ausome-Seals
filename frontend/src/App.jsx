@@ -13,6 +13,7 @@ import {
   ChevronRight,
   CheckCircle2,
   Download,
+  Languages,
   Menu,
   X,
 } from "lucide-react";
@@ -21,6 +22,12 @@ import logo from "./assets/logo.webp";
 import heroRollingMill from "./assets/hero-rolling-mill.webp";
 import "./styles.css";
 import ChatWidget from "./ChatWidget";
+import {
+  getLanguageMeta,
+  isSupportedLanguage,
+  languageOptions,
+  translations,
+} from "./language";
 
 import product1 from "./assets/products/product1.webp";
 import product2 from "./assets/products/product2.webp";
@@ -72,233 +79,6 @@ function preloadImage(src) {
 
   return imagePreloadCache.get(src);
 }
-
-const translations = {
-  en: {
-    brandName: "Ausome Seals",
-    brandSubtitle: "Rolling Mill Sealing Solutions",
-    seoTitle: "Ausome Seals | Rolling Mill Seals",
-    seoDescription: "Heavy-duty oil seals, water seals, fabric-reinforced seals, split seals, and custom sealing products for steel rolling mills.",
-    openMenu: "Open navigation menu",
-    closeMenu: "Close navigation menu",
-    previousImage: "Previous image",
-    nextImage: "Next image",
-    navProducts: "Products",
-    navApplications: "Applications",
-    navCooperation: "Partners",
-    navAbout: "About",
-    navContact: "Contact",
-    heroEyebrow: "Heavy-duty sealing products for steel rolling mills",
-    heroTitle: "Rolling Mill Sealing Solutions",
-    heroText: "Ausome Seals specializes in heavy-duty seals for steel rolling mills. Our product range includes oil seals, water seals, fabric-reinforced seals, split seals, and custom sealing products engineered to control leakage and perform reliably in demanding mill conditions.",
-    viewProducts: "View Products",
-    requestQuote: "Request a Quote",
-    steel: "Steel Rolling Mills",
-    industryFocus: "Industry Focus",
-    custom: "Custom",
-    sealDesign: "Seal Design",
-    technicalSupport: "Technical Support",
-    capabilitiesLabel: "Our Capabilities",
-    supportItems: ["Seal installation", "Replacement review", "Working-condition analysis"],
-    heroImageAlt: "Steel rolling mill equipment",
-
-    factoryTitle: "Manufacturing",
-    factoryText: "Based in Nanjing, China, our factory operates multiple production lines for oil seals and other rubber sealing products, supported by high-specification equipment, experienced specialists, and professional storage for stable quality control.",
-
-    labTitle: "Testing",
-    labText: "Testing and inspection support material selection, dimensional consistency, and reliable performance in high-pressure, abrasive, and oil-contaminated service conditions.",
-    testingDetails: {
-      openLabel: "Explore Testing & Quality Control",
-      closeLabel: "Hide Testing Details",
-      title: "Testing & Quality Control",
-      intro: "For large, heavy-duty rotary shaft seals, particularly those with an outer diameter of 150 mm or above, our production and inspection procedures follow the applicable requirements of GB/T 13871.1.",
-      items: [
-        {
-          title: "Process Control",
-          text: "Quality control covers incoming materials, metal-case preparation, rubber mixing and filtration, controlled vacuum vulcanization, trimming, spring assembly, laser marking, and final inspection.",
-        },
-        {
-          title: "Batch Inspection",
-          text: "Each batch is checked for appearance, critical dimensions, lip interference, concentricity, rubber hardness, and spring tension. Roundness and concentricity receive particular attention on large-diameter seals.",
-        },
-        {
-          title: "Performance Validation",
-          text: "Depending on the seal design and project requirements, validation may include tensile and elongation tests, compression set, oil resistance, heat aging, low-temperature performance, leakage, bonding strength, and rotary endurance.",
-        },
-        {
-          title: "Operating-Condition Simulation",
-          text: "Customized equipment can reproduce shaft speed, oil temperature, pressure, and operating media to evaluate sealing performance and durability before production approval.",
-        },
-      ],
-    },
-
-    productsLabel: "Products",
-    productsText: "Core products can be customized by material, profile, diameter, pressure, temperature, medium, and equipment interface.",
-    catalogDownloadsLabel: "Product Catalog",
-    catalogDownloadCn: "Chinese Catalog",
-    catalogDownloadEn: "English Catalog",
-
-    applicationsLabel: "Applications",
-    applicationsText: "Beyond supplying sealing products, we provide technical support for seal installation, equipment operation, replacement review, and working-condition analysis to help maintenance teams improve reliability and reduce downtime risk.",
-
-    cooperationLabel: "Partners",
-    cooperationText: "Our products serve major steel plants across China, from private enterprises to state-owned groups. We also maintain long-term OEM supply relationships with CISDI and CFHI, leaders in metallurgical engineering and heavy equipment, while expanding support for international steel producers, equipment manufacturers, and maintenance partners.",
-
-    aboutLabel: "About",
-    aboutTitle: "Built for Demanding Conditions.",
-    aboutText: "Based in China, Ausome Seals is a sealing product manufacturer with 11 years of experience in sealing applications for large steel rolling mill equipment. Long-term cooperation with steel producers, maintenance teams, and equipment partners has given us a deep understanding of real operating conditions and extensive expertise across the full process, from seal material formulation and production to installation and resolving issues encountered in actual use. We are now bringing this manufacturing and application experience to international rolling mill customers.",
-
-    contactLabel: "Contact",
-    contactTitle: "Request a Quote",
-    contactText: "Check the catalog for model and size guide, or send us your size, conditions, application, or sample photo.",
-    nameLabel: "Name",
-    companyLabel: "Company",
-    emailLabel: "Email",
-    messageLabel: "Requirements",
-    namePlaceholder: "Your name",
-    companyPlaceholder: "Company",
-    emailPlaceholder: "Email",
-    messagePlaceholder: "",
-    submitInquiry: "Submit",
-    sending: "Sending...",
-    successMessage: "Message sent. We will contact you soon.",
-    errorMessage: "Unable to send right now. Please try again later or contact us by email.",
-
-    email: "support@ausomeseals.com",
-    phone: "WhatsApp: +86 137-7661-6519",
-    location: "China / Global Customers",
-    footerRights: "All rights reserved.",
-
-    products: [
-      {
-        title: "Rolling Mill Seals",
-        desc: "Heavy-duty oil seals, water seals, fabric-reinforced seals, split seals, and custom seals for steel rolling mill equipment. Download the catalog for available series, models, and sizes.",
-        features: ["Oil & water seals", "Fabric-reinforced", "Split options", "Custom profiles"],
-      },
-    ],
-    applications: [
-      "Hot rolling mills",
-      "Cold rolling mills",
-      "Plate mills",
-      "Bar and wire rod mills",
-      "Mill stands and bearing areas",
-      "Roll necks and bearing chocks",
-    ],
-  },
-
-  zh: {
-    brandName: "Ausome Seals",
-    brandSubtitle: "轧机密封解决方案",
-    seoTitle: "Ausome Seals | 轧机用密封件",
-    seoDescription: "面向钢铁轧机的重载油封、水封、夹布密封、剖分式密封及定制密封产品。",
-    openMenu: "打开导航菜单",
-    closeMenu: "关闭导航菜单",
-    previousImage: "上一张图片",
-    nextImage: "下一张图片",
-    navProducts: "产品",
-    navApplications: "应用场景",
-    navCooperation: "合作伙伴",
-    navAbout: "关于我们",
-    navContact: "联系我们",
-    heroEyebrow: "面向钢铁轧机的重载密封产品",
-    heroTitle: "轧机密封解决方案",
-    heroText: "Ausome Seals 专注于钢铁轧机用重载密封件。产品涵盖油封、水封、夹布密封、剖分式密封及定制密封产品，适用于轧机严苛工况下的泄漏控制与稳定运行。",
-    viewProducts: "查看产品",
-    requestQuote: "获取报价",
-    steel: "钢铁轧机",
-    industryFocus: "行业专注",
-    custom: "定制",
-    sealDesign: "密封设计",
-    technicalSupport: "技术支持",
-    capabilitiesLabel: "核心能力",
-    supportItems: ["密封安装", "替换评估", "工况分析"],
-    heroImageAlt: "钢铁轧机设备",
-
-    factoryTitle: "生产制造",
-    factoryText: "我们的工厂位于中国南京，配备多条油封及其他橡胶密封件生产线，采用高规格生产设备，由拥有十余年经验的橡胶密封件专业人员提供生产指导，并配套专业仓储环境，保障产品质量稳定。",
-
-    labTitle: "测试设施",
-    labText: "测试与检验能力支持材料选择、尺寸一致性以及高压、磨损、油污等工况下的可靠表现。",
-    testingDetails: {
-      openLabel: "查看测试与质量控制",
-      closeLabel: "收起测试详情",
-      title: "测试与质量控制",
-      intro: "对于外径 150 mm 及以上的大型重载旋转轴密封件，我们的生产与检验流程遵循 GB/T 13871.1 的适用要求。",
-      items: [
-        {
-          title: "过程控制",
-          text: "质量控制覆盖原材料入厂、金属骨架处理、橡胶混炼与过滤、可控真空硫化、修边、弹簧装配、激光标识及最终检验。",
-        },
-        {
-          title: "批次检验",
-          text: "每批产品均检查外观、关键尺寸、唇口过盈量、同心度、橡胶硬度和弹簧张力；大型密封件尤其重视圆度与同心度。",
-        },
-        {
-          title: "性能验证",
-          text: "根据密封结构和项目要求，可进行拉伸与伸长率、压缩永久变形、耐油、热老化、低温、泄漏、粘接强度及旋转耐久测试。",
-        },
-        {
-          title: "工况模拟",
-          text: "定制测试设备可模拟轴转速、油温、压力和工作介质，在产品投入生产使用前评估密封性能与耐久性。",
-        },
-      ],
-    },
-
-    productsLabel: "产品系列",
-    productsText: "核心产品可根据材料、截面形式、直径、压力、温度、介质以及设备接口进行定制。",
-    catalogDownloadsLabel: "\u4ea7\u54c1\u624b\u518c",
-    catalogDownloadCn: "\u4e2d\u6587\u624b\u518c",
-    catalogDownloadEn: "\u82f1\u6587\u624b\u518c",
-
-    applicationsLabel: "应用场景",
-    applicationsText: "我们不仅提供密封产品，也为客户提供产品安装、设备运行、替换评估和工况分析等技术服务支持，帮助检修团队提升设备可靠性并降低停机风险。",
-
-    cooperationLabel: "合作伙伴",
-    cooperationText: "我们的产品服务于中国多家大型钢铁企业，覆盖民营与国有企业，并与中冶赛迪、中国一重建立了长期 OEM 供货关系。我们正向国际市场拓展，为海外钢铁企业、轧机设备制造商和检修合作伙伴提供密封解决方案。",
-
-    aboutLabel: "关于",
-    aboutTitle: "面向严苛工况。",
-    aboutText: "Ausome Seals 是一家位于中国的密封产品制造企业，拥有 11 年大型钢铁轧机设备密封经验。通过与钢铁企业、检修团队和设备合作伙伴的长期合作，我们深入了解实际工况，并在密封材料配方、生产制造、安装以及实际使用问题处理等从生产到应用的全过程积累了丰富经验。现在，我们正将这些制造与应用经验带向国际轧机客户。",
-
-    contactLabel: "联系我们",
-    contactTitle: "获取报价",
-    contactText: "请先查看产品目录中的型号与尺寸指南，或发送所需尺寸、工况、使用场景或样品图片。",
-    nameLabel: "姓名",
-    companyLabel: "公司",
-    emailLabel: "邮箱",
-    messageLabel: "需求",
-    namePlaceholder: "您的姓名",
-    companyPlaceholder: "公司名称",
-    emailPlaceholder: "邮箱",
-    messagePlaceholder: "",
-    submitInquiry: "提交",
-    sending: "发送中...",
-    successMessage: "消息已发送，我们会尽快与您联系。",
-    errorMessage: "暂时无法发送，请稍后重试或通过邮箱联系我们。",
-
-    email: "support@ausomeseals.com",
-    phone: "WhatsApp: +86 137-7661-6519",
-    location: "中国 / 全球客户",
-    footerRights: "版权所有。",
-
-    products: [
-      {
-        title: "轧机用密封件",
-        desc: "面向钢铁轧机设备的重载油封、水封、夹布密封、剖分式密封及定制密封产品。可下载产品目录查看系列、型号与尺寸。",
-        features: ["油封与水封", "夹布增强", "剖分结构", "定制截面"],
-      },
-    ],
-
-    applications: [
-      "热轧机",
-      "冷轧机",
-      "中厚板轧机",
-      "棒材与线材轧机",
-      "轧机机架与轴承区域",
-      "轧辊轴颈与轴承座",
-    ],
-  },
-};
 
 const productImages = [product3, product1, product2];
 const catalogCn = "/catalogs/Ausome_Seals_Oil_Seal_Catalog_CN.pdf";
@@ -987,27 +767,82 @@ function Footer({ t }) {
   );
 }
 
-function LanguageToggle({ lang, toggleLanguage }) {
+function LanguageSelector({ lang, onChange, label }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectorRef = useRef(null);
+  const currentLanguage = getLanguageMeta(lang);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const closeOnOutsideClick = (event) => {
+      if (!selectorRef.current?.contains(event.target)) setIsOpen(false);
+    };
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isOpen]);
+
+  const selectLanguage = (code) => {
+    onChange(code);
+    setIsOpen(false);
+  };
+
   return (
-    <button
-      className="language-toggle"
-      onClick={toggleLanguage}
-      type="button"
-      aria-label="Switch language"
-      title="Switch language"
+    <div
+      className={isOpen ? "language-selector open" : "language-selector"}
+      ref={selectorRef}
     >
-      {lang === "en" ? "中文" : "EN"}
-    </button>
+      <button
+        className="language-selector-trigger"
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <Languages size={16} aria-hidden="true" />
+        <span>{currentLanguage.code.toUpperCase()}</span>
+        <ChevronRight className="language-selector-chevron" size={15} aria-hidden="true" />
+      </button>
+
+      <div className="language-selector-menu" role="listbox" aria-label={label}>
+        {languageOptions.map((language) => {
+          const selected = language.code === lang;
+          return (
+            <button
+              className={selected ? "language-selector-option selected" : "language-selector-option"}
+              key={language.code}
+              type="button"
+              role="option"
+              aria-selected={selected}
+              onClick={() => selectLanguage(language.code)}
+            >
+              <span>{language.label}</span>
+              <CheckCircle2 size={15} aria-hidden="true" />
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
-
 function App() {
-  const [lang, setLang] = useState("en");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [lang, setLang] = useState(() => {
+    const savedLanguage = window.localStorage.getItem("ausome-language");
+    if (isSupportedLanguage(savedLanguage)) return savedLanguage;
 
-  const toggleLanguage = () => {
-    setLang((current) => (current === "en" ? "zh" : "en"));
-  };
+    const browserLanguage = window.navigator.language.split("-")[0].toLowerCase();
+    return isSupportedLanguage(browserLanguage) ? browserLanguage : "en";
+  });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
@@ -1016,10 +851,12 @@ function App() {
   const t = translations[lang];
 
   useEffect(() => {
-    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    const languageMeta = getLanguageMeta(lang);
+    document.documentElement.lang = languageMeta.htmlLang;
     document.title = t.seoTitle;
     const description = document.querySelector('meta[name="description"]');
     description?.setAttribute("content", t.seoDescription);
+    window.localStorage.setItem("ausome-language", lang);
   }, [lang, t.seoDescription, t.seoTitle]);
 
   useEffect(() => {
@@ -1094,7 +931,7 @@ function App() {
       <ContactSection t={t} />
       <Footer t={t} />
       <ChatWidget lang={lang} />
-      <LanguageToggle lang={lang} toggleLanguage={toggleLanguage} />
+      <LanguageSelector lang={lang} onChange={setLang} label={t.languageLabel} />
     </>
   );
 }

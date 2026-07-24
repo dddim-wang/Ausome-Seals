@@ -6,38 +6,10 @@ import {
 } from "lucide-react";
 
 import "./chat.css";
+import { chatTranslations } from "./language";
 
 
 const API_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
-
-const copy = {
-  en: {
-    open: "Ask Ausome AI",
-    close: "Close AI assistant",
-    title: "Ausome AI Assistant",
-    subtitle: "Rolling mill seal selection",
-    greeting: "Hello! Tell me your rolling mill type, seal series or size, equipment position, medium, pressure, and temperature. I can help you narrow down the options.",
-    inputLabel: "Message",
-    send: "Send message",
-    stop: "Stop response",
-    thinking: "Reviewing your requirements…",
-    error: "The AI assistant is unavailable right now. Please try again.",
-    disclaimer: "AI guidance is for reference. Final selection should be confirmed against operating conditions.",
-  },
-  zh: {
-    open: "咨询 Ausome AI",
-    close: "关闭 AI 助手",
-    title: "Ausome AI 助手",
-    subtitle: "轧机密封选型支持",
-    greeting: "您好！请告诉我轧机类型、密封系列或尺寸、设备位置、介质、压力和温度，我会协助您缩小选型范围。",
-    inputLabel: "消息",
-    send: "发送消息",
-    stop: "停止回答",
-    thinking: "正在分析您的需求…",
-    error: "AI 助手暂时不可用，请稍后重试。",
-    disclaimer: "AI 建议仅供参考，最终选型需结合实际工况确认。",
-  },
-};
 
 function parseSseEvent(block) {
   let event = "message";
@@ -66,7 +38,7 @@ function SealRingIcon({ size = 26 }) {
 }
 
 export default function ChatWidget({ lang }) {
-  const t = copy[lang] || copy.en;
+  const t = chatTranslations[lang] || chatTranslations.en;
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
@@ -256,10 +228,10 @@ export default function ChatWidget({ lang }) {
               <div className={`ai-message ${message.role}`} key={message.id}>
                 {message.content && <span>{message.content}</span>}
                 {message.sources?.length > 0 && (
-                  <div className="ai-message-sources" aria-label="Knowledge sources">
+                  <div className="ai-message-sources" aria-label={t.sourcesLabel}>
                     {message.sources.map((source) => (
                       <small key={`${source.source}-${source.page}`}>
-                        {source.source.replace(/\.pdf$/i, "")} · p.{source.page}
+                        {source.source.replace(/\.pdf$/i, "")} · {t.pageAbbreviation}{source.page}{t.pageSuffix || ""}
                       </small>
                     ))}
                   </div>
