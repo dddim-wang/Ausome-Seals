@@ -308,6 +308,7 @@
 
 /* Keep the language control accessible above the chat launcher. */
 .language-selector {
+  right: 22px;
   bottom: 92px;
 }
 
@@ -349,7 +350,7 @@
   }
 
   .language-selector {
-    right: 17px;
+    right: 14px;
     bottom: 78px;
   }
 }
