@@ -1,11 +1,27 @@
 import os
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 
+from app.agent import AgentOrchestrator, AgentPlan
 from app.ai.providers import AIProvider, DeepSeekProvider, StubAIProvider
 from app.models import ChatMessage, ChatRequest, ChatResponse, ChatSource
 from app.rag import RagContext, RagService
 from app.rag.service import create_rag_service
+
+
+_CITATION_RE = re.compile(
+    r"\[[^\]\r\n]*?\.pdf\s+(?:p\.?|page)\s*\d+\]",
+    re.IGNORECASE,
+)
+_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+", re.MULTILINE)
+
+
+def sanitize_assistant_text(content: str) -> str:
+    content = content.replace("**", "")
+    content = _HEADING_RE.sub("", content)
+    content = _CITATION_RE.sub("", content)
+    return re.sub(r"\n{3,}", "\n\n", content)
 
 
 def _env_bool(name: str, default: bool = False) -> bool:
@@ -19,47 +35,65 @@ def _env_bool(name: str, default: bool = False) -> bool:
 class AIStream:
     chunks: Iterator[str]
     rag_context: RagContext | None
+    agent_intent: str
+    agent_stage: str
 
 
 class AIService:
-    def __init__(self, provider: AIProvider, rag_service: RagService | None = None):
+    def __init__(
+        self,
+        provider: AIProvider,
+        rag_service: RagService | None = None,
+        orchestrator: AgentOrchestrator | None = None,
+    ):
         self.provider = provider
-        self.rag_service = rag_service
-
-    def _prepare(self, chat_request: ChatRequest) -> tuple[list[ChatMessage], RagContext | None]:
-        messages = list(chat_request.messages)
-        if self.rag_service is None:
-            return messages, None
-        user_messages = [message.content for message in messages if message.role == "user"]
-        if not user_messages:
-            return messages, None
-        latest_question = user_messages[-1]
-        conversation_context = "\n".join(user_messages[-3:-1])
-        rag_context = self.rag_service.retrieve(latest_question, conversation_context)
-        if rag_context is None:
-            return messages, None
-        return [ChatMessage(role="system", content=rag_context.prompt), *messages], rag_context
+        self.orchestrator = orchestrator or AgentOrchestrator(rag_service)
 
     @staticmethod
-    def _sources(rag_context: RagContext | None) -> list[ChatSource]:
-        if rag_context is None:
-            return []
-        return [ChatSource(**source.__dict__) for source in rag_context.sources]
+    def _provider_messages(plan: AgentPlan) -> list[ChatMessage]:
+        system_contents = []
+        first_non_system = 0
+        for index, message in enumerate(plan.messages):
+            if message.role != "system":
+                first_non_system = index
+                break
+            system_contents.append(message.content)
+        else:
+            first_non_system = len(plan.messages)
+
+        return [
+            ChatMessage(role="system", content="\n\n".join(system_contents)),
+            *plan.messages[first_non_system:],
+        ]
+
+    @staticmethod
+    def _sources(_rag_context: RagContext | None) -> list[ChatSource]:
+        return []
 
     def chat(self, chat_request: ChatRequest) -> ChatResponse:
-        messages, rag_context = self._prepare(chat_request)
-        content = self.provider.generate(messages)
+        plan = self.orchestrator.plan(chat_request)
+        messages = self._provider_messages(plan)
+        content = sanitize_assistant_text(self.provider.generate(messages))
         return ChatResponse.create(
             message=ChatMessage(role="assistant", content=content),
             conversation_id=chat_request.conversation_id,
             model=self.provider.model,
-            knowledge_domain=rag_context.domain if rag_context else None,
-            sources=self._sources(rag_context),
+            knowledge_domain=(
+                plan.rag_context.domain if plan.rag_context else None
+            ),
+            sources=self._sources(plan.rag_context),
+            agent_intent=plan.intent,
+            agent_stage=plan.stage,
         )
 
     def stream(self, chat_request: ChatRequest) -> AIStream:
-        messages, rag_context = self._prepare(chat_request)
-        return AIStream(self.provider.stream(messages), rag_context)
+        plan = self.orchestrator.plan(chat_request)
+        return AIStream(
+            chunks=self.provider.stream(self._provider_messages(plan)),
+            rag_context=plan.rag_context,
+            agent_intent=plan.intent,
+            agent_stage=plan.stage,
+        )
 
 
 def create_ai_service() -> AIService:

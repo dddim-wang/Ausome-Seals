@@ -48,7 +48,8 @@ class RagRoutingTests(unittest.TestCase):
         self.assertIsNotNone(context)
         self.assertEqual(context.domain, "ausome")
         self.assertEqual(knowledge_base.domain, "ausome")
-        self.assertIn("[Ausome_Catalog_EN.pdf p.7]", context.prompt)
+        self.assertNotIn("Ausome_Catalog_EN.pdf", context.prompt)
+        self.assertIn("Do not mention citations", context.prompt)
         self.assertIn("Never invent a model", context.prompt)
 
 

@@ -23,6 +23,14 @@ function parseSseEvent(block) {
   return { event, data: data.join("\n") };
 }
 
+function cleanAssistantText(content) {
+  return content
+    .replace(/\*\*/g, "")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/\[[^\]\r\n]*?\.pdf\s+(?:p\.?|page)\s*\d+\]/gi, "")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 function makeId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
@@ -95,7 +103,7 @@ export default function ChatWidget({ lang }) {
   const appendDelta = (assistantId, content) => {
     setMessages((current) => current.map((message) => (
       message.id === assistantId
-        ? { ...message, content: message.content + content }
+        ? { ...message, content: cleanAssistantText(message.content + content) }
         : message
     )));
   };
@@ -157,13 +165,6 @@ export default function ChatWidget({ lang }) {
 
           if (parsed.event === "meta" && data.conversation_id) {
             setConversationId(data.conversation_id);
-            if (Array.isArray(data.sources)) {
-              setMessages((current) => current.map((message) => (
-                message.id === assistantId
-                  ? { ...message, sources: data.sources }
-                  : message
-              )));
-            }
           } else if (parsed.event === "delta" && data.content) {
             appendDelta(assistantId, data.content);
           } else if (parsed.event === "error") {
@@ -226,16 +227,7 @@ export default function ChatWidget({ lang }) {
             </div>
             {messages.map((message) => (
               <div className={`ai-message ${message.role}`} key={message.id}>
-                {message.content && <span>{message.content}</span>}
-                {message.sources?.length > 0 && (
-                  <div className="ai-message-sources" aria-label={t.sourcesLabel}>
-                    {message.sources.map((source) => (
-                      <small key={`${source.source}-${source.page}`}>
-                        {source.source.replace(/\.pdf$/i, "")} · {t.pageAbbreviation}{source.page}{t.pageSuffix || ""}
-                      </small>
-                    ))}
-                  </div>
-                )}
+                {message.content && <span>{cleanAssistantText(message.content)}</span>}
                 {message.pending && !message.content && (
                   <span className="ai-typing">
                     <i /> <i /> <i />

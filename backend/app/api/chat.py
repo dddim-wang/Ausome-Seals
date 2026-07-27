@@ -47,9 +47,10 @@ def chat_stream(request: Request, payload: ChatRequest) -> StreamingResponse:
         yield _sse("meta", {
             "conversation_id": payload.conversation_id,
             "model": request.app.state.ai_service.provider.model,
+            "agent_intent": stream.agent_intent,
+            "agent_stage": stream.agent_stage,
             "knowledge_domain": stream.rag_context.domain if stream.rag_context else None,
-            "sources": [source.__dict__ for source in stream.rag_context.sources]
-            if stream.rag_context else [],
+            "sources": [],
         })
         try:
             for content in stream.chunks:

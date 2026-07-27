@@ -21,7 +21,7 @@ _AUSOME_MODEL_RE = re.compile(
 )
 
 _AUSOME_MARKERS = (
-    "ausome", "澳森", "奥斯姆", "贵司", "你们公司", "你们的", "公司介绍", "公司信息",
+    "ausome", "奥斯姆", "奥斯姆密封", "贵司", "你们公司", "你们的", "公司介绍", "公司信息",
     "产品型号", "具体型号", "产品目录", "产品规格", "报价", "询价", "company profile",
     "your company", "your product", "product model", "catalog", "quotation",
 )
@@ -312,9 +312,8 @@ class RagService:
         )
         excerpts = []
         references = []
-        for chunk in chunks:
-            label = f"{chunk.source} p.{chunk.page}"
-            excerpts.append(f"[{label}]\n{chunk.text[:1200]}")
+        for index, chunk in enumerate(chunks, start=1):
+            excerpts.append(f"Reference excerpt {index}\n{chunk.text[:1200]}")
             references.append(SourceReference(
                 source=chunk.source,
                 page=chunk.page,
@@ -326,7 +325,7 @@ class RagService:
             "You are the Ausome Seals knowledge assistant. Answer in the same language as the user's latest message.\n"
             f"The retrieval route for this question is: {domain_description}.\n"
             "Use the excerpts below as the factual basis for product, company, and technical claims. "
-            "Cite claims inline using the exact [filename p.N] labels. If the excerpts do not contain enough "
+            "Do not mention citations, source filenames, page numbers, or the retrieved excerpts. If the excerpts do not contain enough "
             "information, say that the current documents cannot confirm it and ask for the missing operating "
             "conditions. Never invent a model, dimension, pressure, temperature, certification, company fact, "
             "or availability. Do not present products from the general industry reference as Ausome products.\n\n"

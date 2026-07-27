@@ -12,10 +12,19 @@ class ChatMessage(BaseModel):
     content: str = Field(min_length=1, max_length=8_000)
 
 
+class ClientChatMessage(BaseModel):
+    """A message accepted from the public chat API."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=8_000)
+
+
 class ChatRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    messages: list[ChatMessage] = Field(min_length=1, max_length=50)
+    messages: list[ClientChatMessage] = Field(min_length=1, max_length=50)
     conversation_id: str = Field(
         default_factory=lambda: str(uuid4()), min_length=1, max_length=128
     )
@@ -42,6 +51,19 @@ class ChatResponse(BaseModel):
     created_at: str
     knowledge_domain: Literal["ausome", "oilseals"] | None = None
     sources: list[ChatSource] = Field(default_factory=list)
+    agent_intent: Literal[
+        "general",
+        "company_product_qa",
+        "technical_qa",
+        "product_selection",
+        "quotation",
+        "human_handoff",
+    ]
+    agent_stage: Literal[
+        "respond",
+        "collect_requirements",
+        "prepare_inquiry",
+    ]
 
     @classmethod
     def create(
@@ -52,6 +74,8 @@ class ChatResponse(BaseModel):
         model: str,
         knowledge_domain: Literal["ausome", "oilseals"] | None = None,
         sources: list[ChatSource] | None = None,
+        agent_intent: str,
+        agent_stage: str,
     ) -> "ChatResponse":
         return cls(
             id=str(uuid4()),
@@ -61,4 +85,6 @@ class ChatResponse(BaseModel):
             created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             knowledge_domain=knowledge_domain,
             sources=sources or [],
+            agent_intent=agent_intent,
+            agent_stage=agent_stage,
         )
