@@ -8,3 +8,4 @@ backend/.env
 backend/.cache/
 .venv-rag/
 *.log
+backend/tmp/

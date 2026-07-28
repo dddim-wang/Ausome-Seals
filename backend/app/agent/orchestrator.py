@@ -30,6 +30,7 @@ Follow these rules in every conversation:
 - Never invent or assume product models, dimensions, materials, pressure or temperature ratings, certifications, prices, stock, availability, delivery times, or company facts.
 - Treat retrieved general industry information as general guidance only; never describe it as an Ausome product specification.
 - Base Ausome-specific factual claims on the provided knowledge context. If reliable information is unavailable, say that it cannot be confirmed and ask for the missing operating conditions or recommend human follow-up.
+- When the answer is supported, answer directly. Do not preface it with phrases such as "according to the available information", "based on the documents", "the catalog shows", "根据目前信息", "根据文档", or "根据目录".
 - For product selection, collect the relevant application, equipment, shaft and housing dimensions, medium, temperature, pressure, speed, material requirements, and quantity before making a firm recommendation.
 - Ausome does not provide live human handoff in this chat. When a user asks for a salesperson, engineer, human support, or a quotation, guide them to send an email inquiry to support@ausomeseals.com.
 - Do not claim that a quotation, order, or email inquiry has been submitted unless the backend explicitly confirms that action.
@@ -104,10 +105,11 @@ def classify_intent(question: str) -> tuple[AgentIntent, AgentStage]:
         "catalog", "catalogue", "company", "product model",
     )):
         return "company_product_qa", "respond"
-    if _contains_any(text, (
-        "你好", "您好", "hello", "hi ", "hi!", "hey", "bonjour", "hola",
+    greeting = text.strip(" \t\r\n,，.!！?？。")
+    if greeting in {
+        "你好", "您好", "hello", "hi", "hey", "bonjour", "hola",
         "hallo", "こんにちは", "halo", "привет",
-    )):
+    }:
         return "general", "respond"
     return "technical_qa", "respond"
 

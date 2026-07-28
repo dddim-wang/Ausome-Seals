@@ -126,6 +126,13 @@ class ChatApiTests(ApiTestCase):
 
         self.assertEqual(response.status_code, 422)
 
+    def test_chat_keeps_client_message_limit_at_8000_characters(self):
+        response = self.client.post("/api/chat", json={
+            "messages": [{"role": "user", "content": "x" * 8_001}],
+        })
+
+        self.assertEqual(response.status_code, 422)
+
     def test_chat_always_sends_server_agent_prompt_first(self):
         provider = self.app.state.ai_service.provider
         original_generate = provider.generate

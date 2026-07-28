@@ -2,6 +2,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "knowledge:check": "node scripts/export-rag-content.mjs --check",
+    "knowledge:export": "node scripts/export-rag-content.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

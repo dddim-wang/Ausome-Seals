@@ -13,6 +13,8 @@ os.environ["AI_PROVIDER"] = "stub"
 os.environ["RATELIMIT_ENABLED"] = "false"
 
 from app.ai.providers import DeepSeekProvider
+from app.ai.service import AIService
+from app.agent import AgentPlan
 from app.models import ChatMessage
 
 
@@ -34,6 +36,24 @@ class FakeResponse:
 
 
 class DeepSeekProviderTests(unittest.TestCase):
+    def test_combined_rag_system_prompt_can_exceed_client_message_limit(self):
+        plan = AgentPlan(
+            messages=[
+                ChatMessage(role="system", content="a" * 4_000),
+                ChatMessage(role="system", content="b" * 5_000),
+                ChatMessage(role="user", content="What is an oil seal?"),
+            ],
+            intent="technical_qa",
+            stage="respond",
+            rag_context=None,
+        )
+
+        messages = AIService._provider_messages(plan)
+
+        self.assertEqual(messages[0].role, "system")
+        self.assertEqual(len(messages[0].content), 9_002)
+        self.assertEqual(messages[1].role, "user")
+
     @patch("app.ai.providers.url_request.urlopen")
     def test_generate_uses_configured_model_and_returns_text(self, urlopen):
         body = {"choices": [{"message": {"content": "Use an NBR oil seal."}}]}

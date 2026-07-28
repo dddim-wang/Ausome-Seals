@@ -103,7 +103,17 @@ RAG_RESULT_LIMIT=5
 
 The first RAG request extracts the PDFs and writes a local cache to `backend/.cache/rag-index.json`. Later starts reuse the cache until a PDF changes. Answers receive only documents from the selected knowledge group and are instructed to cite the PDF filename and page number.
 
-The current Ausome Chinese catalog is image-only, so searchable product facts come from its English counterpart. The Chinese and English general oil-seal references both contain searchable text.
+The OCR Chinese catalog, English catalog, and all localized website copy are
+searchable. Website content is exported from the eight language modules into
+`backend/knowledge/Ausome_Website_Content.rag.json`.
+
+After changing website copy, refresh and verify that RAG source:
+
+```bash
+cd frontend
+npm run knowledge:export
+npm run knowledge:check
+```
 ## Contact Form Email
 
 The contact form sends every inquiry to:

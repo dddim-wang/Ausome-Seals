@@ -11,14 +11,20 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-_INDEX_VERSION = 1
+_INDEX_VERSION = 4
 _CJK_RE = re.compile(r"[\u3400-\u9fff]+")
 _WORD_RE = re.compile(r"[a-z0-9]+(?:[-_/][a-z0-9]+)*", re.IGNORECASE)
 _AUSOME_MODEL_RE = re.compile(
     r"\b(?:ASC|ATC|ASBB|ASB|ATB|ATA|ASA|AJFR|AJFL|AVAX|AVA|AVS|AVL|AVE|"
-    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMO|APM)\b",
+    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMOD|AMOX|AMO|APM)\b",
     re.IGNORECASE,
 )
+_AUSOME_ORDER_CODE_RE = re.compile(
+    r"\b(?:ASC|ATC|ASBB|ASB|ATB|ATA|ASA|AJFR|AJFL|AVAX|AVA|AVS|AVL|AVE|"
+    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMOD|AMOX|AMO|APM)[A-Z0-9/-]{3,}\b",
+    re.IGNORECASE,
+)
+_SPECIFICATION_MARKERS = ("规格表", "订货号", "ref.no", "ref no")
 
 _AUSOME_MARKERS = (
     "ausome", "奥斯姆", "奥斯姆密封", "贵司", "你们公司", "你们的", "公司介绍", "公司信息",
@@ -102,7 +108,25 @@ def _clean_text(text: str) -> str:
     return text.strip()
 
 
-def _split_page(text: str, *, size: int = 1400, overlap: int = 220) -> list[str]:
+def _is_specification_page(text: str) -> bool:
+    compact = re.sub(r"\s+", "", text).lower()
+    has_heading = any(marker in compact for marker in _SPECIFICATION_MARKERS)
+    # Some OCR pages lose the table heading while retaining dozens of order codes.
+    has_dense_order_codes = len(_AUSOME_ORDER_CODE_RE.findall(text)) >= 4
+    return has_heading or has_dense_order_codes
+
+
+def _split_page(
+    text: str,
+    *,
+    size: int = 1400,
+    overlap: int = 220,
+    preserve_table: bool = False,
+) -> list[str]:
+    # Catalog spreads contain several parallel order-number / d / D / b columns.
+    # Keep specification pages atomic so a code is not split from its dimensions.
+    if preserve_table:
+        return [text] if text else []
     if len(text) <= size:
         return [text] if text else []
 
@@ -126,9 +150,15 @@ def _split_page(text: str, *, size: int = 1400, overlap: int = 220) -> list[str]
 def _tokenize(text: str) -> list[str]:
     lowered = text.lower()
     tokens = _WORD_RE.findall(lowered)
-    for sequence in _CJK_RE.findall(lowered):
-        tokens.extend(sequence)
-        tokens.extend(sequence[index:index + 2] for index in range(len(sequence) - 1))
+    for line in lowered.splitlines():
+        # OCR often emits Chinese as "规 格 表" and "内 径". Join CJK runs
+        # without concatenating the numeric cells in a specification row.
+        sequence = "".join(_CJK_RE.findall(line))
+        if sequence:
+            tokens.append(sequence)
+            tokens.extend(
+                sequence[index:index + 2] for index in range(len(sequence) - 1)
+            )
     return tokens
 
 
@@ -162,9 +192,10 @@ class KnowledgeBase:
         self._domain_sizes: dict[str, int] = {}
         self._lock = threading.Lock()
 
-    def _pdf_files(self) -> list[Path]:
+    def _knowledge_files(self) -> list[Path]:
         return sorted(
-            path for path in self.knowledge_dir.glob("*.pdf")
+            path for path in self.knowledge_dir.iterdir()
+            if path.suffix.lower() in {".pdf", ".json"}
             if _domain_from_name(path.name) is not None
         )
 
@@ -197,10 +228,38 @@ class KnowledgeBase:
             domain = _domain_from_name(path.name)
             if domain is None:
                 continue
+            if path.suffix.lower() == ".json":
+                try:
+                    payload = json.loads(path.read_text(encoding="utf-8"))
+                    for item in payload.get("chunks", []):
+                        text = _clean_text(str(item.get("text", "")))
+                        language = str(item.get("language", "en")).lower()
+                        if (
+                            not text
+                            or language not in {
+                                "de", "en", "es", "fr", "id", "ja", "ru", "zh",
+                            }
+                        ):
+                            continue
+                        chunks.append(KnowledgeChunk(
+                            domain=domain,
+                            language=language,
+                            source=path.name,
+                            page=int(item.get("page", 1)),
+                            text=text,
+                        ))
+                except (OSError, ValueError, TypeError):
+                    logger.warning(
+                        "Website RAG content is invalid and will be skipped: %s",
+                        path,
+                        exc_info=True,
+                    )
+                continue
             reader = PdfReader(path)
             for page_number, page in enumerate(reader.pages, start=1):
                 text = _clean_text(page.extract_text() or "")
-                for part in _split_page(text):
+                preserve_table = domain == "ausome" and _is_specification_page(text)
+                for part in _split_page(text, preserve_table=preserve_table):
                     chunks.append(KnowledgeChunk(
                         domain=domain,
                         language=_language_from_name(path.name),
@@ -224,7 +283,7 @@ class KnowledgeBase:
         with self._lock:
             if self._chunks is not None:
                 return
-            paths = self._pdf_files()
+            paths = self._knowledge_files()
             if not paths:
                 raise RuntimeError(f"No supported knowledge PDFs found in {self.knowledge_dir}")
             fingerprint = self._fingerprint(paths)
@@ -251,6 +310,12 @@ class KnowledgeBase:
         query = _expanded_query(question)
         query_tokens = Counter(_tokenize(query))
         exact_models = {match.group(0).lower() for match in _AUSOME_MODEL_RE.finditer(query)}
+        exact_order_codes = {
+            match.group(0).lower() for match in _AUSOME_ORDER_CODE_RE.finditer(query)
+        }
+        query_numbers = {
+            token for token in _WORD_RE.findall(query.lower()) if token.isdigit()
+        }
         domain_size = max(self._domain_sizes.get(domain, 1), 1)
         domain_df = self._document_frequencies.get(domain, {})
         scores: list[tuple[float, int]] = []
@@ -268,9 +333,20 @@ class KnowledgeBase:
                 inverse_frequency = math.log(1 + (domain_size - document_frequency + 0.5) / (document_frequency + 0.5))
                 score += query_weight * inverse_frequency * ((frequency * 2.2) / (frequency + length_norm))
             lowered_chunk = chunk.text.lower()
-            score += sum(18.0 for model in exact_models if model in lowered_chunk)
+            score += sum(22.0 for model in exact_models if model in lowered_chunk)
+            score += sum(36.0 for code in exact_order_codes if code in lowered_chunk)
+            if exact_models and _is_specification_page(chunk.text):
+                score += 8.0
+            if exact_models and query_numbers:
+                matched_numbers = sum(
+                    1 for number in query_numbers
+                    if re.search(rf"(?<!\d){re.escape(number)}(?!\d)", lowered_chunk)
+                )
+                score += matched_numbers * 3.5
             if _CJK_RE.search(question) and chunk.language == "zh":
                 score *= 1.12
+            elif not _CJK_RE.search(question) and chunk.language == "en":
+                score *= 1.06
             if score > 0:
                 scores.append((score, index))
 
@@ -306,14 +382,15 @@ class RagService:
             return None
 
         domain_description = (
-            "Ausome company and product catalog"
+            "Ausome website and product catalog"
             if domain == "ausome"
             else "general oil-seal industry reference"
         )
         excerpts = []
         references = []
         for index, chunk in enumerate(chunks, start=1):
-            excerpts.append(f"Reference excerpt {index}\n{chunk.text[:1200]}")
+            excerpt_limit = 6000 if _is_specification_page(chunk.text) else 1800
+            excerpts.append(f"Reference excerpt {index}\n{chunk.text[:excerpt_limit]}")
             references.append(SourceReference(
                 source=chunk.source,
                 page=chunk.page,
@@ -325,10 +402,17 @@ class RagService:
             "You are the Ausome Seals knowledge assistant. Answer in the same language as the user's latest message.\n"
             f"The retrieval route for this question is: {domain_description}.\n"
             "Use the excerpts below as the factual basis for product, company, and technical claims. "
-            "Do not mention citations, source filenames, page numbers, or the retrieved excerpts. If the excerpts do not contain enough "
+            "Answer supported questions directly without introducing the answer with phrases such as "
+            "'according to the available information', 'based on the documents', 'the catalog shows', "
+            "'根据目前信息', '根据文档', or '根据目录'. Do not mention citations, source filenames, "
+            "page numbers, the knowledge base, or the retrieved excerpts. If the excerpts do not contain enough "
             "information, say that the current documents cannot confirm it and ask for the missing operating "
             "conditions. Never invent a model, dimension, pressure, temperature, certification, company fact, "
-            "or availability. Do not present products from the general industry reference as Ausome products.\n\n"
+            "or availability. Do not present products from the general industry reference as Ausome products. "
+            "For size selection, preserve each catalog row as a unit: state the exact model or order number and "
+            "label shaft/inside diameter d, outside diameter D, and width b explicitly. Never transpose columns "
+            "or infer an unreadable OCR value. If a row is ambiguous, say so and ask the customer to confirm the "
+            "catalog page or provide d x D x b.\n\n"
             "Retrieved excerpts:\n" + "\n\n".join(excerpts)
         )
         return RagContext(domain=domain, prompt=prompt, sources=tuple(references))

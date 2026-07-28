@@ -5,11 +5,15 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
+INTERNAL_MESSAGE_MAX_LENGTH = 32_000
+CLIENT_MESSAGE_MAX_LENGTH = 8_000
+
+
 class ChatMessage(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     role: Literal["system", "user", "assistant"]
-    content: str = Field(min_length=1, max_length=8_000)
+    content: str = Field(min_length=1, max_length=INTERNAL_MESSAGE_MAX_LENGTH)
 
 
 class ClientChatMessage(BaseModel):
@@ -18,7 +22,7 @@ class ClientChatMessage(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     role: Literal["user", "assistant"]
-    content: str = Field(min_length=1, max_length=8_000)
+    content: str = Field(min_length=1, max_length=CLIENT_MESSAGE_MAX_LENGTH)
 
 
 class ChatRequest(BaseModel):
