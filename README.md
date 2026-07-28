@@ -99,9 +99,20 @@ The service searches `backend/knowledge`, the project-level `knowledge` folder, 
 RAG_ENABLED=true
 RAG_KNOWLEDGE_DIR=knowledge
 RAG_RESULT_LIMIT=5
+RAG_PRELOAD=true
 ```
 
-The first RAG request extracts the PDFs and writes a local cache to `backend/.cache/rag-index.json`. Later starts reuse the cache until a PDF changes. Answers receive only documents from the selected knowledge group and are instructed to cite the PDF filename and page number.
+The repository includes a prebuilt `backend/.cache/rag-index.json`. At startup,
+the backend validates it with content hashes and loads it before serving the
+first RAG request. File modification times do not invalidate the cache.
+
+After changing a knowledge PDF or the exported website content, rebuild the
+committed index:
+
+```bash
+cd backend
+python prebuild_rag.py
+```
 
 The OCR Chinese catalog, English catalog, and all localized website copy are
 searchable. Website content is exported from the eight language modules into

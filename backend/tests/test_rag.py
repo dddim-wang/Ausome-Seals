@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -137,6 +138,30 @@ class WebsiteKnowledgeTests(unittest.TestCase):
             self.assertEqual(results[0].source, website_path.name)
             self.assertEqual(results[0].language, "zh")
             self.assertIn("南京", results[0].text)
+
+
+class KnowledgeCacheTests(unittest.TestCase):
+    def test_fingerprint_uses_content_not_modification_time(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            knowledge_dir = Path(temp_dir)
+            website_path = knowledge_dir / "Ausome_Website_Content.rag.json"
+            website_path.write_text('{"chunks": []}', encoding="utf-8")
+            knowledge_base = KnowledgeBase(
+                knowledge_dir,
+                knowledge_dir / "rag-cache.json",
+            )
+
+            original = knowledge_base._fingerprint([website_path])
+            stat = website_path.stat()
+            os.utime(
+                website_path,
+                ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000_000),
+            )
+
+            self.assertEqual(
+                knowledge_base._fingerprint([website_path]),
+                original,
+            )
 
 
 if __name__ == "__main__":

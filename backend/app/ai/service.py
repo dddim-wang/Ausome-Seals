@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from collections.abc import Iterator
@@ -9,6 +10,8 @@ from app.models import ChatMessage, ChatRequest, ChatResponse, ChatSource
 from app.rag import RagContext, RagService
 from app.rag.service import create_rag_service
 
+
+logger = logging.getLogger(__name__)
 
 _CITATION_RE = re.compile(
     r"\[[^\]\r\n]*?\.pdf\s+(?:p\.?|page)\s*\d+\]",
@@ -102,14 +105,22 @@ def create_ai_service() -> AIService:
     rag_service = create_rag_service() if rag_enabled else None
 
     if provider_name == "stub":
-        return AIService(StubAIProvider(), rag_service)
-    if provider_name == "deepseek":
-        return AIService(DeepSeekProvider(
+        service = AIService(StubAIProvider(), rag_service)
+    elif provider_name == "deepseek":
+        service = AIService(DeepSeekProvider(
             api_key=os.getenv("DEEPSEEK_API_KEY", "").strip(),
             model=os.getenv("DEEPSEEK_MODEL", "deepseek-v4-pro").strip(),
             base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").strip(),
             timeout_seconds=float(os.getenv("DEEPSEEK_TIMEOUT_SECONDS", "60")),
             thinking_enabled=_env_bool("DEEPSEEK_THINKING_ENABLED", False),
         ), rag_service)
+    else:
+        raise RuntimeError(f"Unsupported AI_PROVIDER: {provider_name}")
 
-    raise RuntimeError(f"Unsupported AI_PROVIDER: {provider_name}")
+    if rag_service is not None and _env_bool("RAG_PRELOAD", True):
+        try:
+            chunk_count = rag_service.warm_up()
+            logger.info("RAG index ready with %s chunks", chunk_count)
+        except RuntimeError:
+            logger.exception("RAG index preload failed; retrieval will retry on demand")
+    return service

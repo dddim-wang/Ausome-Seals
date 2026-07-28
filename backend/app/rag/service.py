@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import math
@@ -11,7 +12,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-_INDEX_VERSION = 4
+_INDEX_VERSION = 5
 _CJK_RE = re.compile(r"[\u3400-\u9fff]+")
 _WORD_RE = re.compile(r"[a-z0-9]+(?:[-_/][a-z0-9]+)*", re.IGNORECASE)
 _AUSOME_MODEL_RE = re.compile(
@@ -200,10 +201,18 @@ class KnowledgeBase:
         )
 
     def _fingerprint(self, paths: list[Path]) -> list[dict]:
-        return [
-            {"name": path.name, "size": path.stat().st_size, "mtime_ns": path.stat().st_mtime_ns}
-            for path in paths
-        ]
+        fingerprint = []
+        for path in paths:
+            digest = hashlib.sha256()
+            with path.open("rb") as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(block)
+            fingerprint.append({
+                "name": path.name,
+                "size": path.stat().st_size,
+                "sha256": digest.hexdigest(),
+            })
+        return fingerprint
 
     def _read_cache(self, fingerprint: list[dict]) -> list[KnowledgeChunk] | None:
         if not self.cache_path.exists():
@@ -364,6 +373,14 @@ class KnowledgeBase:
                 break
         return selected
 
+    def warm_up(self) -> int:
+        self._ensure_loaded()
+        return len(self._chunks or ())
+
+    @property
+    def is_loaded(self) -> bool:
+        return self._chunks is not None
+
 
 class RagService:
     def __init__(self, knowledge_base: KnowledgeBase, *, result_limit: int = 5):
@@ -416,6 +433,13 @@ class RagService:
             "Retrieved excerpts:\n" + "\n\n".join(excerpts)
         )
         return RagContext(domain=domain, prompt=prompt, sources=tuple(references))
+
+    def warm_up(self) -> int:
+        return self.knowledge_base.warm_up()
+
+    @property
+    def is_ready(self) -> bool:
+        return self.knowledge_base.is_loaded
 
 
 def find_knowledge_directory() -> Path | None:
