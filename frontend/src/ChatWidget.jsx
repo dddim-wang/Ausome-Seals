@@ -171,6 +171,15 @@ export default function ChatWidget({ lang }) {
 
           if (parsed.event === "meta" && data.conversation_id) {
             setConversationId(data.conversation_id);
+            setMessages((current) => current.map((message) => (
+              message.id === assistantId
+                ? {
+                    ...message,
+                    knowledgeDomain: data.knowledge_domain || null,
+                    sources: Array.isArray(data.sources) ? data.sources : [],
+                  }
+                : message
+            )));
           } else if (parsed.event === "delta" && data.content) {
             appendDelta(assistantId, data.content);
           } else if (parsed.event === "error") {
@@ -238,6 +247,19 @@ export default function ChatWidget({ lang }) {
             {messages.map((message) => (
               <div className={`ai-message ${message.role}`} key={message.id}>
                 {message.content && <span>{cleanAssistantText(message.content)}</span>}
+                {message.role === "assistant" && message.sources?.length > 0 && (
+                  <div className="ai-message-sources" aria-label={t.sourcesLabel}>
+                    {message.sources.map((source) => (
+                      <small key={`${source.source}-${source.page}`}>
+                        {source.source}
+                        {" · "}
+                        {t.pageAbbreviation}
+                        {source.page}
+                        {t.pageSuffix}
+                      </small>
+                    ))}
+                  </div>
+                )}
                 {message.pending && !message.content && (
                   <span className="ai-typing">
                     <i /> <i /> <i />

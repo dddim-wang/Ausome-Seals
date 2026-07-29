@@ -70,8 +70,18 @@ class AIService:
         ]
 
     @staticmethod
-    def _sources(_rag_context: RagContext | None) -> list[ChatSource]:
-        return []
+    def _sources(rag_context: RagContext | None) -> list[ChatSource]:
+        if rag_context is None:
+            return []
+        return [
+            ChatSource(
+                source=reference.source,
+                page=reference.page,
+                domain=reference.domain,
+                language=reference.language,
+            )
+            for reference in rag_context.sources
+        ]
 
     def chat(self, chat_request: ChatRequest) -> ChatResponse:
         plan = self.orchestrator.plan(chat_request)

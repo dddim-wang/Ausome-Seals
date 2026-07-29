@@ -78,6 +78,8 @@ class RagRoutingTests(unittest.TestCase):
             "ausome",
         )
 
+    def test_avc_model_routes_to_ausome_catalog(self):
+        self.assertEqual(route_question("你们公司有AVC油封吗？"), "ausome")
     def test_semantic_router_handles_other_languages(self):
         router = lambda _question: "oilseals"
 
@@ -238,6 +240,58 @@ class CatalogSpecificationTests(unittest.TestCase):
 
         self.assertEqual(results[0].page, 8)
 
+
+    def test_order_code_falls_back_to_its_model_family_when_ocr_loses_code(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex([0.1, 0.99]),
+        )
+        knowledge_base._chunks = [
+            KnowledgeChunk(
+                domain="ausome", language="zh", source="catalog.pdf", page=8,
+                text="骨架油封 ASC 规格表\nASCO00400 40 62 8",
+            ),
+            KnowledgeChunk(
+                domain="ausome", language="zh", source="catalog.pdf", page=20,
+                text="骨架油封 ATB 规格表",
+            ),
+        ]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search("ASC000400的尺寸", "ausome", limit=1)
+
+        self.assertEqual(results[0].page, 8)
+
+    def test_avc_question_prioritizes_avc_catalog_page(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex([0.1, 0.99]),
+        )
+        knowledge_base._chunks = [
+            KnowledgeChunk(
+                domain="ausome", language="zh", source="catalog.pdf", page=18,
+                text="无弹簧脂密封 AVC、AVB 规格表",
+            ),
+            KnowledgeChunk(
+                domain="ausome", language="zh", source="catalog.pdf", page=3,
+                text="公司介绍和常用油封材料",
+            ),
+        ]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search("你们公司有avc油封吗？", "ausome", limit=1)
+
+        self.assertEqual(results[0].page, 18)
 
 class WebsiteKnowledgeTests(unittest.TestCase):
     def test_website_json_is_loaded_and_searchable(self):

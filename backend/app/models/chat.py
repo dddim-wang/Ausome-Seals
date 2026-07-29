@@ -44,7 +44,7 @@ class ChatSource(BaseModel):
     source: str
     page: int
     domain: Literal["ausome", "oilseals"]
-    language: Literal["zh", "en"]
+    language: Literal["zh", "en", "es", "fr", "de", "ja", "id", "ru"]
 
 
 class ChatResponse(BaseModel):

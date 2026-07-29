@@ -19,13 +19,13 @@ _INDEX_VERSION = 5
 _CJK_RE = re.compile(r"[\u3400-\u9fff]+")
 _WORD_RE = re.compile(r"[a-z0-9]+(?:[-_/][a-z0-9]+)*", re.IGNORECASE)
 _AUSOME_MODEL_RE = re.compile(
-    r"\b(?:ASC|ATC|ASBB|ASB|ATB|ATA|ASA|AJFR|AJFL|AVAX|AVA|AVS|AVL|AVE|"
-    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMOD|AMOX|AMO|APM)\b",
+    r"(?<![A-Z0-9])(?:ASC|ATC|ASBB|ASB|ATB|ATA|ASA|AJFR|AJFL|AVAX|AVC|AVB|AVA|AVS|AVL|AVE|AKC|AKB|AKA|"
+    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMOD|AMOX|AMO|APM)(?![A-Z0-9])",
     re.IGNORECASE,
 )
 _AUSOME_ORDER_CODE_RE = re.compile(
-    r"\b(?:ASC|ATC|ASBB|ASB|ATB|ATA|ASA|AJFR|AJFL|AVAX|AVA|AVS|AVL|AVE|"
-    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMOD|AMOX|AMO|APM)[A-Z0-9/-]{3,}\b",
+    r"(?<![A-Z0-9])(?P<model>ASC|ATC|ASBB|ASB|ATB|ATA|ASA|AJFR|AJFL|AVAX|AVC|AVB|AVA|AVS|AVL|AVE|AKC|AKB|AKA|"
+    r"ARME|ARM|AWTT|AWT|AOKC3|AMOY|AMOD|AMOX|AMO|APM)[A-Z0-9/-]{3,}(?![A-Z0-9/-])",
     re.IGNORECASE,
 )
 _SPECIFICATION_MARKERS = ("规格表", "订货号", "ref.no", "ref no")
@@ -349,9 +349,14 @@ class KnowledgeBase:
         query = _expanded_query(question)
         query_tokens = Counter(_tokenize(query))
         exact_models = {match.group(0).lower() for match in _AUSOME_MODEL_RE.finditer(query)}
-        exact_order_codes = {
-            match.group(0).lower() for match in _AUSOME_ORDER_CODE_RE.finditer(query)
-        }
+        order_code_matches = list(_AUSOME_ORDER_CODE_RE.finditer(query))
+        exact_order_codes = {match.group(0).lower() for match in order_code_matches}
+        # A full order code has no word boundary between its alphabetic model
+        # prefix and numeric suffix, so _AUSOME_MODEL_RE cannot see the family.
+        # Preserve the family as a fallback when PDF OCR corrupts the exact code.
+        exact_models.update(
+            match.group("model").lower() for match in order_code_matches
+        )
         query_numbers = {
             token for token in _WORD_RE.findall(query.lower()) if token.isdigit()
         }
