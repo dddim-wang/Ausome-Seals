@@ -3,3 +3,4 @@ slowapi==0.1.9
 python-dotenv==1.0.1
 pypdf>=5.0,<7.0
 cryptography>=43.0,<47.0
+fastembed==0.8.0

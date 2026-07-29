@@ -100,11 +100,20 @@ RAG_ENABLED=true
 RAG_KNOWLEDGE_DIR=knowledge
 RAG_RESULT_LIMIT=5
 RAG_PRELOAD=true
+RAG_BUILD_MISSING=false
+EMBEDDING_ENABLED=true
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+EMBEDDING_CACHE_PATH=.cache/rag-vectors.json
+EMBEDDING_MODEL_CACHE_DIR=.cache/fastembed
+EMBEDDING_THREADS=2
+EMBEDDING_BUILD_MISSING=false
 ```
 
-The repository includes a prebuilt `backend/.cache/rag-index.json`. At startup,
-the backend validates it with content hashes and loads it before serving the
-first RAG request. File modification times do not invalidate the cache.
+The repository includes prebuilt text and vector indexes in `backend/.cache`.
+At startup, the backend validates them with content hashes and loads the index before
+serving the first RAG request. File modification times do not invalidate the cache.
+With `RAG_BUILD_MISSING=false`, a missing or stale index disables RAG quickly instead
+of parsing PDFs during application startup or a user request.
 
 After changing a knowledge PDF or the exported website content, rebuild the
 committed index:
@@ -112,6 +121,14 @@ committed index:
 ```bash
 cd backend
 python prebuild_rag.py
+```
+
+This command also downloads the local multilingual embedding model and verifies
+the vector index. In Railway, include it after dependency installation in the
+backend build command so the model is cached in the deployment image:
+
+```bash
+pip install -r requirements.txt && python prebuild_rag.py
 ```
 
 The OCR Chinese catalog, English catalog, and all localized website copy are

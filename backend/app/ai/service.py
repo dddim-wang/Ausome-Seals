@@ -113,6 +113,13 @@ def create_ai_service() -> AIService:
             base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com").strip(),
             timeout_seconds=float(os.getenv("DEEPSEEK_TIMEOUT_SECONDS", "60")),
             thinking_enabled=_env_bool("DEEPSEEK_THINKING_ENABLED", False),
+            max_retries=int(os.getenv("DEEPSEEK_MAX_RETRIES", "2")),
+            retry_base_seconds=float(
+                os.getenv("DEEPSEEK_RETRY_BASE_SECONDS", "0.5")
+            ),
+            retry_max_seconds=float(
+                os.getenv("DEEPSEEK_RETRY_MAX_SECONDS", "5")
+            ),
         ), rag_service)
     else:
         raise RuntimeError(f"Unsupported AI_PROVIDER: {provider_name}")
@@ -121,6 +128,8 @@ def create_ai_service() -> AIService:
         try:
             chunk_count = rag_service.warm_up()
             logger.info("RAG index ready with %s chunks", chunk_count)
-        except RuntimeError:
-            logger.exception("RAG index preload failed; retrieval will retry on demand")
+        except Exception:
+            logger.exception(
+                "RAG index preload failed; AI will continue without RAG"
+            )
     return service

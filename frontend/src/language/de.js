@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "Antwort stoppen",
     thinking: "Anforderungen werden geprüft…",
     error: "Der KI-Assistent ist derzeit nicht verfügbar. Bitte versuchen Sie es erneut.",
+    historyTooLong: "Diese Unterhaltung ist zu lang. Bitte starten Sie einen neuen Chat.",
     disclaimer: "KI-Hinweise dienen nur zur Orientierung. Die endgültige Auswahl muss anhand der Betriebsbedingungen bestätigt werden.",
     sourcesLabel: "Wissensquellen",
     pageAbbreviation: "S.",

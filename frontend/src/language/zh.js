@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "停止回答",
     thinking: "正在分析您的需求…",
     error: "AI 助手暂时不可用，请稍后重试。",
+    historyTooLong: "本次对话内容过长，请开启新的对话。",
     disclaimer: "AI 建议仅供参考，最终选型需结合实际工况确认。",
     sourcesLabel: "知识来源",
     pageAbbreviation: "第",

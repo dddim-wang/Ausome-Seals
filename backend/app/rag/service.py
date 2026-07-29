@@ -8,6 +8,9 @@ import threading
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Callable
+
+from app.rag.embeddings import DEFAULT_EMBEDDING_MODEL, MultilingualEmbeddingIndex
 
 
 logger = logging.getLogger(__name__)
@@ -168,9 +171,13 @@ def _expanded_query(query: str) -> str:
     return f"{query} {' '.join(additions)}"
 
 
-def route_question(question: str, conversation_context: str = "") -> str:
-    combined = f"{conversation_context}\n{question}".lower()
-    if _AUSOME_MODEL_RE.search(combined):
+def route_question(
+    question: str,
+    conversation_context: str = "",
+    semantic_router: Callable[[str], str | None] | None = None,
+) -> str:
+    combined = f"{conversation_context}\n{question}".strip().lower()
+    if _AUSOME_MODEL_RE.search(combined) or _AUSOME_ORDER_CODE_RE.search(combined):
         return "ausome"
     if any(marker in combined for marker in _AUSOME_MARKERS):
         return "ausome"
@@ -180,13 +187,30 @@ def route_question(question: str, conversation_context: str = "") -> str:
     # remains the safer default for product-oriented website conversations.
     if "油封" in question or "oil seal" in question.lower():
         return "oilseals"
+    if semantic_router is not None:
+        try:
+            semantic_domain = semantic_router(combined)
+        except Exception:
+            logger.exception("Semantic RAG routing failed; using the catalog route")
+        else:
+            if semantic_domain in {"ausome", "oilseals"}:
+                return semantic_domain
     return "ausome"
 
 
 class KnowledgeBase:
-    def __init__(self, knowledge_dir: Path, cache_path: Path):
+    def __init__(
+        self,
+        knowledge_dir: Path,
+        cache_path: Path,
+        embedding_index: MultilingualEmbeddingIndex | None = None,
+        *,
+        build_missing: bool = True,
+    ):
         self.knowledge_dir = knowledge_dir
         self.cache_path = cache_path
+        self.embedding_index = embedding_index
+        self.build_missing = build_missing
         self._chunks: list[KnowledgeChunk] | None = None
         self._token_counts: list[Counter[str]] = []
         self._document_frequencies: dict[str, dict[str, int]] = {}
@@ -296,7 +320,13 @@ class KnowledgeBase:
             if not paths:
                 raise RuntimeError(f"No supported knowledge PDFs found in {self.knowledge_dir}")
             fingerprint = self._fingerprint(paths)
-            chunks = self._read_cache(fingerprint) or self._build(paths, fingerprint)
+            chunks = self._read_cache(fingerprint)
+            if chunks is None:
+                if not self.build_missing:
+                    raise RuntimeError(
+                        "RAG index is missing or stale; run prebuild_rag.py"
+                    )
+                chunks = self._build(paths, fingerprint)
             self._chunks = chunks
             self._token_counts = [Counter(_tokenize(chunk.text)) for chunk in chunks]
             self._prepare_statistics(chunks)
@@ -327,7 +357,8 @@ class KnowledgeBase:
         }
         domain_size = max(self._domain_sizes.get(domain, 1), 1)
         domain_df = self._document_frequencies.get(domain, {})
-        scores: list[tuple[float, int]] = []
+        lexical_scores: list[tuple[float, int]] = []
+        exact_priorities: dict[int, int] = {}
 
         for index, (chunk, counts) in enumerate(zip(self._chunks, self._token_counts)):
             if chunk.domain != domain:
@@ -356,13 +387,52 @@ class KnowledgeBase:
                 score *= 1.12
             elif not _CJK_RE.search(question) and chunk.language == "en":
                 score *= 1.06
+            order_code_matches = sum(
+                1 for code in exact_order_codes if code in lowered_chunk
+            )
+            model_matches = sum(
+                1 for model in exact_models if model in lowered_chunk
+            )
+            if order_code_matches:
+                exact_priorities[index] = 2
+            elif model_matches:
+                exact_priorities[index] = 1
             if score > 0:
-                scores.append((score, index))
+                lexical_scores.append((score, index))
 
-        scores.sort(reverse=True)
+        lexical_scores.sort(reverse=True)
+        fused_scores: dict[int, float] = {}
+        for rank, (_score, index) in enumerate(lexical_scores, start=1):
+            fused_scores[index] = fused_scores.get(index, 0.0) + 1.25 / (60 + rank)
+
+        if self.embedding_index is not None:
+            semantic_scores = self.embedding_index.similarities(question, self._chunks)
+            if semantic_scores is not None and len(semantic_scores) == len(self._chunks):
+                ranked_semantic = sorted(
+                    (
+                        (score, index)
+                        for index, score in enumerate(semantic_scores)
+                        if self._chunks[index].domain == domain and score > 0.12
+                    ),
+                    reverse=True,
+                )
+                for rank, (_score, index) in enumerate(
+                    ranked_semantic[:30], start=1
+                ):
+                    fused_scores[index] = (
+                        fused_scores.get(index, 0.0) + 1.0 / (60 + rank)
+                    )
+
+        scores = sorted(
+            (
+                (exact_priorities.get(index, 0), score, index)
+                for index, score in fused_scores.items()
+            ),
+            reverse=True,
+        )
         selected: list[KnowledgeChunk] = []
         seen: set[tuple[str, int]] = set()
-        for _score, index in scores:
+        for _exact_priority, _score, index in scores:
             chunk = self._chunks[index]
             identity = (chunk.source, chunk.page)
             if identity in seen:
@@ -377,6 +447,17 @@ class KnowledgeBase:
         self._ensure_loaded()
         return len(self._chunks or ())
 
+    def build_embedding_index(self) -> int:
+        self._ensure_loaded()
+        if self.embedding_index is None:
+            raise RuntimeError("Multilingual embeddings are disabled")
+        return self.embedding_index.build(self._chunks or ())
+
+    def semantic_route(self, question: str) -> str | None:
+        if self.embedding_index is None:
+            return None
+        return self.embedding_index.route(question)
+
     @property
     def is_loaded(self) -> bool:
         return self._chunks is not None
@@ -388,11 +469,15 @@ class RagService:
         self.result_limit = result_limit
 
     def retrieve(self, question: str, conversation_context: str = "") -> RagContext | None:
-        domain = route_question(question, conversation_context)
+        domain = route_question(
+            question,
+            conversation_context,
+            getattr(self.knowledge_base, "semantic_route", None),
+        )
         search_query = f"{conversation_context}\n{question}".strip()
         try:
             chunks = self.knowledge_base.search(search_query, domain, limit=self.result_limit)
-        except RuntimeError:
+        except Exception:
             logger.exception("RAG retrieval is unavailable")
             return None
         if not chunks:
@@ -460,7 +545,7 @@ def find_knowledge_directory() -> Path | None:
     return None
 
 
-def create_rag_service() -> RagService | None:
+def create_rag_service(*, build_missing: bool | None = None) -> RagService | None:
     knowledge_dir = find_knowledge_directory()
     if knowledge_dir is None:
         logger.warning("RAG is enabled but no knowledge directory was found")
@@ -470,5 +555,49 @@ def create_rag_service() -> RagService | None:
     cache_path = Path(configured_cache) if configured_cache else backend_dir / ".cache" / "rag-index.json"
     if not cache_path.is_absolute():
         cache_path = backend_dir / cache_path
+    embedding_index = None
+    if os.getenv("EMBEDDING_ENABLED", "true").strip().lower() in {
+        "1", "true", "yes", "on",
+    }:
+        configured_vector_cache = os.getenv("EMBEDDING_CACHE_PATH", "").strip()
+        vector_cache_path = (
+            Path(configured_vector_cache)
+            if configured_vector_cache
+            else backend_dir / ".cache" / "rag-vectors.json"
+        )
+        if not vector_cache_path.is_absolute():
+            vector_cache_path = backend_dir / vector_cache_path
+        configured_model_cache = os.getenv("EMBEDDING_MODEL_CACHE_DIR", "").strip()
+        model_cache_dir = (
+            Path(configured_model_cache)
+            if configured_model_cache
+            else backend_dir / ".cache" / "fastembed"
+        )
+        if not model_cache_dir.is_absolute():
+            model_cache_dir = backend_dir / model_cache_dir
+        configured_threads = os.getenv("EMBEDDING_THREADS", "2").strip()
+        embedding_index = MultilingualEmbeddingIndex(
+            vector_cache_path,
+            model_name=os.getenv(
+                "EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL
+            ).strip(),
+            model_cache_dir=model_cache_dir,
+            threads=int(configured_threads) if configured_threads else None,
+            build_missing=os.getenv(
+                "EMBEDDING_BUILD_MISSING", "false"
+            ).strip().lower() in {"1", "true", "yes", "on"},
+        )
     result_limit = int(os.getenv("RAG_RESULT_LIMIT", "5"))
-    return RagService(KnowledgeBase(knowledge_dir, cache_path), result_limit=result_limit)
+    if build_missing is None:
+        build_missing = os.getenv(
+            "RAG_BUILD_MISSING", "false"
+        ).strip().lower() in {"1", "true", "yes", "on"}
+    return RagService(
+        KnowledgeBase(
+            knowledge_dir,
+            cache_path,
+            embedding_index,
+            build_missing=build_missing,
+        ),
+        result_limit=result_limit,
+    )

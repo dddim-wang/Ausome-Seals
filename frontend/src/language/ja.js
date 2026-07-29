@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "回答を停止",
     thinking: "ご要望を確認しています…",
     error: "現在 AI アシスタントを利用できません。もう一度お試しください。",
+    historyTooLong: "会話が長すぎます。新しいチャットを開始してください。",
     disclaimer: "AI の案内は参考情報です。最終選定は実際の使用条件に基づいて確認してください。",
     sourcesLabel: "参照資料",
     pageAbbreviation: "p.",

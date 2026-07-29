@@ -6,9 +6,6 @@ __pycache__/
 .DS_Store
 backend/.env
 backend/.cache/
-!backend/.cache/
-backend/.cache/*
-!backend/.cache/rag-index.json
 .venv-rag/
 *.log
 backend/tmp/

@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test": "node scripts/test-chat-request.mjs",
     "knowledge:check": "node scripts/export-rag-content.mjs --check",
     "knowledge:export": "node scripts/export-rag-content.mjs",
     "preview": "vite preview"

@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "Stop response",
     thinking: "Reviewing your requirements…",
     error: "The AI assistant is unavailable right now. Please try again.",
+    historyTooLong: "This conversation is too long. Please start a new chat.",
     disclaimer: "AI guidance is for reference. Final selection should be confirmed against operating conditions.",
     sourcesLabel: "Knowledge sources",
     pageAbbreviation: "p.",

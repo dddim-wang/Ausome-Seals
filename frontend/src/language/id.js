@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "Hentikan jawaban",
     thinking: "Meninjau kebutuhan Anda…",
     error: "Asisten AI sedang tidak tersedia. Silakan coba lagi.",
+    historyTooLong: "Percakapan ini terlalu panjang. Silakan mulai chat baru.",
     disclaimer: "Panduan AI hanya sebagai referensi. Pemilihan akhir harus dikonfirmasi berdasarkan kondisi operasi.",
     sourcesLabel: "Sumber pengetahuan",
     pageAbbreviation: "hlm.",

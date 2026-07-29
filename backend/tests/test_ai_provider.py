@@ -5,6 +5,7 @@ import unittest
 from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
@@ -12,8 +13,8 @@ sys.path.insert(0, str(BACKEND_DIR))
 os.environ["AI_PROVIDER"] = "stub"
 os.environ["RATELIMIT_ENABLED"] = "false"
 
-from app.ai.providers import DeepSeekProvider
-from app.ai.service import AIService
+from app.ai.providers import AIProviderError, DeepSeekProvider
+from app.ai.service import AIService, create_ai_service
 from app.agent import AgentPlan
 from app.models import ChatMessage
 
@@ -33,6 +34,32 @@ class FakeResponse:
 
     def read(self):
         return self.body.read()
+
+
+class InterruptedResponse(FakeResponse):
+    def __iter__(self):
+        yield b'data: {"choices":[{"delta":{"content":"Oil "}}]}\n\n'
+        raise OSError("stream disconnected")
+
+
+class BrokenRagService:
+    def warm_up(self):
+        raise OSError("cache directory is read-only")
+
+
+class AIServiceResilienceTests(unittest.TestCase):
+    @patch("app.ai.service.create_rag_service")
+    def test_unexpected_rag_preload_error_does_not_break_ai_startup(self, create_rag):
+        create_rag.return_value = BrokenRagService()
+
+        with patch.dict(os.environ, {
+            "AI_PROVIDER": "stub",
+            "RAG_ENABLED": "true",
+            "RAG_PRELOAD": "true",
+        }), self.assertLogs("app.ai.service", level="ERROR"):
+            service = create_ai_service()
+
+        self.assertIsInstance(service, AIService)
 
 
 class DeepSeekProviderTests(unittest.TestCase):
@@ -90,6 +117,74 @@ class DeepSeekProviderTests(unittest.TestCase):
         payload = json.loads(request.data.decode("utf-8"))
         self.assertTrue(payload["stream"])
         self.assertEqual(request.headers["Accept"], "text/event-stream")
+
+    @patch("app.ai.providers.time.sleep")
+    @patch("app.ai.providers.url_request.urlopen")
+    def test_retries_retryable_http_error_before_stream_starts(self, urlopen, sleep):
+        urlopen.side_effect = [
+            HTTPError("https://api.deepseek.com", 503, "unavailable", {}, None),
+            FakeResponse(
+                b'data: {"choices":[{"delta":{"content":"Oil seal"}}]}\n\n'
+            ),
+        ]
+        provider = DeepSeekProvider(api_key="test-key")
+
+        chunks = list(provider.stream([
+            ChatMessage(role="user", content="Tell me about seals"),
+        ]))
+
+        self.assertEqual(chunks, ["Oil seal"])
+        self.assertEqual(urlopen.call_count, 2)
+        sleep.assert_called_once_with(0.5)
+
+    @patch("app.ai.providers.time.sleep")
+    @patch("app.ai.providers.url_request.urlopen")
+    def test_retries_timeout_before_request_starts(self, urlopen, sleep):
+        urlopen.side_effect = [
+            TimeoutError("connection timed out"),
+            FakeResponse(
+                b'{"choices":[{"message":{"content":"Recovered"}}]}'
+            ),
+        ]
+        provider = DeepSeekProvider(api_key="test-key")
+
+        result = provider.generate([
+            ChatMessage(role="user", content="Tell me about seals"),
+        ])
+
+        self.assertEqual(result, "Recovered")
+        self.assertEqual(urlopen.call_count, 2)
+        sleep.assert_called_once_with(0.5)
+
+    @patch("app.ai.providers.time.sleep")
+    @patch("app.ai.providers.url_request.urlopen")
+    def test_does_not_retry_authentication_error(self, urlopen, sleep):
+        urlopen.side_effect = HTTPError(
+            "https://api.deepseek.com", 401, "unauthorized", {}, None
+        )
+        provider = DeepSeekProvider(api_key="test-key")
+
+        with self.assertRaisesRegex(AIProviderError, "HTTP 401"):
+            provider.stream([
+                ChatMessage(role="user", content="Tell me about seals"),
+            ])
+
+        self.assertEqual(urlopen.call_count, 1)
+        sleep.assert_not_called()
+
+    @patch("app.ai.providers.url_request.urlopen")
+    def test_does_not_reopen_interrupted_stream(self, urlopen):
+        urlopen.return_value = InterruptedResponse(b"")
+        provider = DeepSeekProvider(api_key="test-key")
+
+        stream = provider.stream([
+            ChatMessage(role="user", content="Tell me about seals"),
+        ])
+        self.assertEqual(next(stream), "Oil ")
+        with self.assertRaisesRegex(AIProviderError, "stream was interrupted"):
+            next(stream)
+
+        self.assertEqual(urlopen.call_count, 1)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,23 @@ class FakeKnowledgeBase:
         )]
 
 
+class BrokenKnowledgeBase:
+    def search(self, _question, _domain, *, limit):
+        raise OSError("PDF is damaged")
+
+
+class FakeEmbeddingIndex:
+    def __init__(self, scores, route="oilseals"):
+        self.scores = scores
+        self.route_domain = route
+
+    def similarities(self, _question, _chunks):
+        return self.scores
+
+    def route(self, _question):
+        return self.route_domain
+
+
 class RagRoutingTests(unittest.TestCase):
     def test_routes_company_and_product_models_to_ausome(self):
         self.assertEqual(route_question("Tell me about Ausome"), "ausome")
@@ -51,6 +68,34 @@ class RagRoutingTests(unittest.TestCase):
             route_question("What material does it use?", "Tell me about the ASC model"),
             "ausome",
         )
+
+    def test_order_code_never_uses_the_semantic_domain_router(self):
+        self.assertEqual(
+            route_question(
+                "ASC000400 dimensions",
+                semantic_router=lambda _question: "oilseals",
+            ),
+            "ausome",
+        )
+
+    def test_semantic_router_handles_other_languages(self):
+        router = lambda _question: "oilseals"
+
+        self.assertEqual(
+            route_question(
+                "¿Por qué falla un retén del eje?",
+                semantic_router=router,
+            ),
+            "oilseals",
+        )
+
+    def test_non_runtime_retrieval_error_degrades_without_raising(self):
+        with self.assertLogs("app.rag.service", level="ERROR"):
+            context = RagService(BrokenKnowledgeBase()).retrieve(
+                "What is an oil seal?"
+            )
+
+        self.assertIsNone(context)
 
     def test_context_contains_source_label_and_domain_guardrail(self):
         knowledge_base = FakeKnowledgeBase()
@@ -115,6 +160,85 @@ class CatalogSpecificationTests(unittest.TestCase):
         self.assertIn("Never transpose columns", context.prompt)
 
 
+    def test_semantic_retrieval_can_return_a_cross_language_match(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex([0.91, 0.15]),
+        )
+        knowledge_base._chunks = [
+            KnowledgeChunk(
+                domain="oilseals", language="zh", source="guide.pdf", page=3,
+                text="旋转轴密封安装时应保护密封唇口。",
+            ),
+            KnowledgeChunk(
+                domain="oilseals", language="en", source="guide.pdf", page=4,
+                text="Chemical storage guidance.",
+            ),
+        ]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search(
+            "オイルシールを正しく取り付ける方法は？",
+            "oilseals",
+            limit=1,
+        )
+
+        self.assertEqual(results[0].page, 3)
+
+    def test_lexical_search_survives_embedding_failure(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex(None),
+        )
+        knowledge_base._chunks = [
+            KnowledgeChunk(
+                domain="oilseals", language="en", source="guide.pdf", page=6,
+                text="Oil seal installation requires a clean shaft.",
+            ),
+        ]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search("oil seal installation", "oilseals")
+
+        self.assertEqual(results[0].page, 6)
+
+    def test_exact_order_code_beats_semantic_ranking(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex([0.2, 0.99]),
+        )
+        knowledge_base._chunks = [
+            KnowledgeChunk(
+                domain="ausome", language="en", source="catalog.pdf", page=8,
+                text="ASC000400 40 62 8",
+            ),
+            KnowledgeChunk(
+                domain="ausome", language="en", source="catalog.pdf", page=20,
+                text="ASC product installation overview",
+            ),
+        ]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search("ASC000400", "ausome", limit=1)
+
+        self.assertEqual(results[0].page, 8)
+
+
 class WebsiteKnowledgeTests(unittest.TestCase):
     def test_website_json_is_loaded_and_searchable(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -141,6 +265,23 @@ class WebsiteKnowledgeTests(unittest.TestCase):
 
 
 class KnowledgeCacheTests(unittest.TestCase):
+    def test_runtime_does_not_rebuild_a_missing_index(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            knowledge_dir = Path(temp_dir)
+            (knowledge_dir / "Ausome_Website_Content.rag.json").write_text(
+                '{"chunks": []}', encoding="utf-8"
+            )
+            knowledge_base = KnowledgeBase(
+                knowledge_dir,
+                knowledge_dir / "missing-cache.json",
+                build_missing=False,
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "run prebuild_rag.py"):
+                knowledge_base.warm_up()
+
+            self.assertFalse((knowledge_dir / "missing-cache.json").exists())
+
     def test_fingerprint_uses_content_not_modification_time(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             knowledge_dir = Path(temp_dir)

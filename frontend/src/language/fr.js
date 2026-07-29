@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "Arrêter la réponse",
     thinking: "Analyse de vos besoins…",
     error: "L'assistant IA est indisponible pour le moment. Veuillez réessayer.",
+    historyTooLong: "Cette conversation est trop longue. Veuillez démarrer un nouveau chat.",
     disclaimer: "Les conseils de l'IA sont indicatifs. Le choix final doit être confirmé selon les conditions de service.",
     sourcesLabel: "Sources documentaires",
     pageAbbreviation: "p.",

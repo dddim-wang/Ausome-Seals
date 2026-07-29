@@ -83,6 +83,7 @@ export default defineLanguage({
     stop: "Detener respuesta",
     thinking: "Revisando sus requisitos…",
     error: "El asistente de IA no está disponible ahora. Inténtelo de nuevo.",
+    historyTooLong: "Esta conversación es demasiado larga. Inicie un chat nuevo.",
     disclaimer: "La orientación de IA es solo de referencia. La selección final debe confirmarse según las condiciones de operación.",
     sourcesLabel: "Fuentes de conocimiento",
     pageAbbreviation: "p.",

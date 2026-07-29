@@ -1,11 +1,17 @@
 import json
+import logging
 import socket
+import time
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Sequence
 from urllib import request as url_request
 from urllib.error import HTTPError, URLError
 
 from app.models import ChatMessage
+
+
+logger = logging.getLogger(__name__)
+RETRYABLE_HTTP_STATUSES = frozenset({429, 502, 503, 504})
 
 
 class AIProviderError(RuntimeError):
@@ -57,6 +63,9 @@ class DeepSeekProvider(AIProvider):
         base_url: str = "https://api.deepseek.com",
         timeout_seconds: float = 60.0,
         thinking_enabled: bool = False,
+        max_retries: int = 2,
+        retry_base_seconds: float = 0.5,
+        retry_max_seconds: float = 5.0,
     ):
         if not api_key:
             raise RuntimeError("DEEPSEEK_API_KEY is required")
@@ -66,6 +75,9 @@ class DeepSeekProvider(AIProvider):
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self.thinking_enabled = thinking_enabled
+        self.max_retries = max(0, max_retries)
+        self.retry_base_seconds = max(0.0, retry_base_seconds)
+        self.retry_max_seconds = max(0.0, retry_max_seconds)
 
     def _build_request(
         self, messages: Sequence[ChatMessage], *, stream: bool
@@ -90,13 +102,41 @@ class DeepSeekProvider(AIProvider):
             },
         )
 
+    def _retry_delay(self, attempt: int, exc: Exception) -> float:
+        delay = self.retry_base_seconds * (2 ** attempt)
+        if isinstance(exc, HTTPError) and exc.headers:
+            try:
+                delay = max(delay, float(exc.headers.get("Retry-After", "0")))
+            except (TypeError, ValueError):
+                pass
+        return min(delay, self.retry_max_seconds)
+
     def _open(self, request: url_request.Request):
-        try:
-            return url_request.urlopen(request, timeout=self.timeout_seconds)
-        except HTTPError as exc:
-            raise AIProviderError(f"DeepSeek API returned HTTP {exc.code}") from exc
-        except (URLError, socket.timeout, TimeoutError) as exc:
-            raise AIProviderError("Unable to reach DeepSeek API") from exc
+        for attempt in range(self.max_retries + 1):
+            try:
+                return url_request.urlopen(request, timeout=self.timeout_seconds)
+            except HTTPError as exc:
+                if exc.code not in RETRYABLE_HTTP_STATUSES or attempt >= self.max_retries:
+                    raise AIProviderError(
+                        f"DeepSeek API returned HTTP {exc.code}"
+                    ) from exc
+                delay = self._retry_delay(attempt, exc)
+                retry_reason = f"HTTP {exc.code}"
+            except (URLError, socket.timeout, TimeoutError, OSError) as exc:
+                if attempt >= self.max_retries:
+                    raise AIProviderError("Unable to reach DeepSeek API") from exc
+                delay = self._retry_delay(attempt, exc)
+                retry_reason = type(exc).__name__
+
+            logger.warning(
+                "DeepSeek connection failed (%s); retrying in %.2fs (%s/%s)",
+                retry_reason,
+                delay,
+                attempt + 1,
+                self.max_retries,
+            )
+            if delay:
+                time.sleep(delay)
 
     def generate(self, messages: Sequence[ChatMessage]) -> str:
         response = self._open(self._build_request(messages, stream=False))

@@ -6,6 +6,10 @@ import {
 } from "lucide-react";
 
 import "./chat.css";
+import {
+  buildChatPayload,
+  isChatPayloadTooLarge,
+} from "./chatRequest.mjs";
 import { chatTranslations } from "./language";
 
 
@@ -131,20 +135,22 @@ export default function ChatWidget({ lang }) {
     abortRef.current = controller;
 
     try {
+      const payload = buildChatPayload(history, conversationId);
+      if (isChatPayloadTooLarge(payload)) {
+        throw new Error("CHAT_HISTORY_TOO_LARGE");
+      }
+
       const response = await fetch(`${API_BASE}/api/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...(conversationId ? { conversation_id: conversationId } : {}),
-          messages: history.map(({ role, content: messageContent }) => ({
-            role,
-            content: messageContent,
-          })),
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
 
       if (!response.ok || !response.body) {
+        if (response.status === 413) {
+          throw new Error("CHAT_HISTORY_TOO_LARGE");
+        }
         throw new Error("Unable to start AI stream");
       }
 
@@ -176,7 +182,11 @@ export default function ChatWidget({ lang }) {
       }
     } catch (streamError) {
       if (streamError.name !== "AbortError") {
-        setError(t.error);
+        setError(
+          streamError.message === "CHAT_HISTORY_TOO_LARGE"
+            ? t.historyTooLong
+            : t.error,
+        );
       }
     } finally {
       setMessages((current) => current.map((message) => (
