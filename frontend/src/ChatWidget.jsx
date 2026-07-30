@@ -39,6 +39,10 @@ function makeId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function isTouchOnlyDevice() {
+  return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+}
+
 function SealRingIcon({ size = 26 }) {
   return (
     <span
@@ -62,9 +66,15 @@ export default function ChatWidget({ lang }) {
   const panelRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const shouldAutoScrollRef = useRef(true);
+  const hasActivatedInputRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
+    if (!isOpen || isTouchOnlyDevice()) return undefined;
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(animationFrame);
   }, [isOpen]);
 
   useEffect(() => {
@@ -104,6 +114,16 @@ export default function ChatWidget({ lang }) {
     abortRef.current?.abort();
   };
 
+  const keepInputFocused = () => {
+    if (isTouchOnlyDevice() && !hasActivatedInputRef.current) return;
+
+    window.requestAnimationFrame(() => {
+      if (panelRef.current?.getAttribute("aria-hidden") === "false") {
+        inputRef.current?.focus({ preventScroll: true });
+      }
+    });
+  };
+
   const appendDelta = (assistantId, content) => {
     setMessages((current) => current.map((message) => (
       message.id === assistantId
@@ -130,6 +150,7 @@ export default function ChatWidget({ lang }) {
     setInput("");
     setError("");
     setIsStreaming(true);
+    keepInputFocused();
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -176,7 +197,6 @@ export default function ChatWidget({ lang }) {
                 ? {
                     ...message,
                     knowledgeDomain: data.knowledge_domain || null,
-                    sources: Array.isArray(data.sources) ? data.sources : [],
                   }
                 : message
             )));
@@ -203,6 +223,7 @@ export default function ChatWidget({ lang }) {
       )).filter((message) => message.id !== assistantId || message.content));
       setIsStreaming(false);
       abortRef.current = null;
+      keepInputFocused();
     }
   }
 
@@ -247,19 +268,6 @@ export default function ChatWidget({ lang }) {
             {messages.map((message) => (
               <div className={`ai-message ${message.role}`} key={message.id}>
                 {message.content && <span>{cleanAssistantText(message.content)}</span>}
-                {message.role === "assistant" && message.sources?.length > 0 && (
-                  <div className="ai-message-sources" aria-label={t.sourcesLabel}>
-                    {message.sources.map((source) => (
-                      <small key={`${source.source}-${source.page}`}>
-                        {source.source}
-                        {" · "}
-                        {t.pageAbbreviation}
-                        {source.page}
-                        {t.pageSuffix}
-                      </small>
-                    ))}
-                  </div>
-                )}
                 {message.pending && !message.content && (
                   <span className="ai-typing">
                     <i /> <i /> <i />
@@ -276,8 +284,11 @@ export default function ChatWidget({ lang }) {
               ref={inputRef}
               value={input}
               onChange={(event) => setInput(event.target.value)}
+              onFocus={() => {
+                hasActivatedInputRef.current = true;
+              }}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
+                if (event.key === "Enter" && !event.shiftKey && !isStreaming) {
                   event.preventDefault();
                   sendMessage(event);
                 }
@@ -285,11 +296,11 @@ export default function ChatWidget({ lang }) {
               aria-label={t.inputLabel}
               maxLength={2000}
               rows={1}
-              disabled={isStreaming}
             />
             <button
               type={isStreaming ? "button" : "submit"}
               onClick={isStreaming ? stopStreaming : undefined}
+              onPointerDown={(event) => event.preventDefault()}
               disabled={!isStreaming && !input.trim()}
               aria-label={isStreaming ? t.stop : t.send}
               title={isStreaming ? t.stop : t.send}

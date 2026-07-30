@@ -40,13 +40,6 @@ class ChatRequest(BaseModel):
         return self
 
 
-class ChatSource(BaseModel):
-    source: str
-    page: int
-    domain: Literal["ausome", "oilseals"]
-    language: Literal["zh", "en", "es", "fr", "de", "ja", "id", "ru"]
-
-
 class ChatResponse(BaseModel):
     id: str
     conversation_id: str
@@ -54,7 +47,6 @@ class ChatResponse(BaseModel):
     model: str
     created_at: str
     knowledge_domain: Literal["ausome", "oilseals"] | None = None
-    sources: list[ChatSource] = Field(default_factory=list)
     agent_intent: Literal[
         "general",
         "company_product_qa",
@@ -77,7 +69,6 @@ class ChatResponse(BaseModel):
         conversation_id: str,
         model: str,
         knowledge_domain: Literal["ausome", "oilseals"] | None = None,
-        sources: list[ChatSource] | None = None,
         agent_intent: str,
         agent_stage: str,
     ) -> "ChatResponse":
@@ -88,7 +79,6 @@ class ChatResponse(BaseModel):
             model=model,
             created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             knowledge_domain=knowledge_domain,
-            sources=sources or [],
             agent_intent=agent_intent,
             agent_stage=agent_stage,
         )

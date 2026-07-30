@@ -50,17 +50,6 @@ def chat_stream(request: Request, payload: ChatRequest) -> StreamingResponse:
             "agent_intent": stream.agent_intent,
             "agent_stage": stream.agent_stage,
             "knowledge_domain": stream.rag_context.domain if stream.rag_context else None,
-            "sources": [
-                {
-                    "source": source.source,
-                    "page": source.page,
-                    "domain": source.domain,
-                    "language": source.language,
-                }
-                for source in request.app.state.ai_service._sources(
-                    stream.rag_context
-                )
-            ],
         })
         try:
             for content in stream.chunks:

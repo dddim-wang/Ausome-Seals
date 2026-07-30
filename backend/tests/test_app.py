@@ -93,6 +93,7 @@ class ChatApiTests(ApiTestCase):
         self.assertIn("如何选择油封？", body["message"]["content"])
         self.assertTrue(body["conversation_id"])
         self.assertEqual(body["model"], "ausome-chat-stub-v1")
+        self.assertNotIn("sources", body)
 
     def test_chat_preserves_supplied_conversation_id(self):
         response = self.client.post("/api/chat", json={

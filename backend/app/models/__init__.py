@@ -1,4 +1,4 @@
-from .chat import ChatMessage, ChatRequest, ChatResponse, ChatSource
+from .chat import ChatMessage, ChatRequest, ChatResponse
 from .contact import ContactInquiry
 
-__all__ = ["ChatMessage", "ChatRequest", "ChatResponse", "ChatSource", "ContactInquiry"]
+__all__ = ["ChatMessage", "ChatRequest", "ChatResponse", "ContactInquiry"]

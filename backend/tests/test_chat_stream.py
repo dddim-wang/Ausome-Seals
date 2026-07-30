@@ -31,6 +31,7 @@ class ChatStreamApiTests(unittest.TestCase):
         self.assertIn("text/event-stream", response.headers["content-type"])
         self.assertIn("event: meta", body)
         self.assertIn('"conversation_id"', body)
+        self.assertNotIn('"sources"', body)
         self.assertIn("event: delta", body)
         self.assertIn("event: done", body)
 

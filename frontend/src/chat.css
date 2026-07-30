@@ -191,27 +191,6 @@
   border-bottom-right-radius: 5px;
 }
 
-.ai-message-sources {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 9px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(35, 79, 154, 0.1);
-  white-space: normal;
-}
-
-.ai-message-sources small {
-  max-width: 100%;
-  padding: 3px 7px;
-  border-radius: 999px;
-  color: #49617f;
-  background: #edf3fc;
-  font-size: 10px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-
 .ai-typing {
   display: flex;
   align-items: center;

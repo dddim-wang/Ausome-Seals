@@ -17,7 +17,6 @@ from app.ai.providers import AIProviderError, DeepSeekProvider
 from app.ai.service import AIService, create_ai_service
 from app.agent import AgentPlan
 from app.models import ChatMessage
-from app.rag import RagContext, SourceReference
 
 
 class FakeResponse:
@@ -62,27 +61,6 @@ class AIServiceResilienceTests(unittest.TestCase):
 
         self.assertIsInstance(service, AIService)
 
-
-    def test_sources_are_exposed_when_rag_context_exists(self):
-        context = RagContext(
-            domain="ausome",
-            prompt="Reference context",
-            sources=(
-                SourceReference(
-                    source="Ausome_Website_Content.rag.json",
-                    page=7,
-                    domain="ausome",
-                    language="fr",
-                ),
-            ),
-        )
-
-        sources = AIService._sources(context)
-
-        self.assertEqual(len(sources), 1)
-        self.assertEqual(sources[0].source, "Ausome_Website_Content.rag.json")
-        self.assertEqual(sources[0].language, "fr")
-        self.assertEqual(sources[0].page, 7)
 
 class DeepSeekProviderTests(unittest.TestCase):
     def test_combined_rag_system_prompt_can_exceed_client_message_limit(self):

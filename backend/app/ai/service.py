@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from app.agent import AgentOrchestrator, AgentPlan
 from app.ai.providers import AIProvider, DeepSeekProvider, StubAIProvider
-from app.models import ChatMessage, ChatRequest, ChatResponse, ChatSource
+from app.models import ChatMessage, ChatRequest, ChatResponse
 from app.rag import RagContext, RagService
 from app.rag.service import create_rag_service
 
@@ -69,20 +69,6 @@ class AIService:
             *plan.messages[first_non_system:],
         ]
 
-    @staticmethod
-    def _sources(rag_context: RagContext | None) -> list[ChatSource]:
-        if rag_context is None:
-            return []
-        return [
-            ChatSource(
-                source=reference.source,
-                page=reference.page,
-                domain=reference.domain,
-                language=reference.language,
-            )
-            for reference in rag_context.sources
-        ]
-
     def chat(self, chat_request: ChatRequest) -> ChatResponse:
         plan = self.orchestrator.plan(chat_request)
         messages = self._provider_messages(plan)
@@ -94,7 +80,6 @@ class AIService:
             knowledge_domain=(
                 plan.rag_context.domain if plan.rag_context else None
             ),
-            sources=self._sources(plan.rag_context),
             agent_intent=plan.intent,
             agent_stage=plan.stage,
         )
