@@ -1,0 +1,46 @@
+{
+	admin off
+	persist_config off
+	auto_https off
+}
+
+:{$PORT:80} {
+	root * /app/dist
+	encode gzip zstd
+
+	# Reject common secret/configuration probes
+	@sensitive path \
+		/.env* \
+		/.git* \
+		/.hg* \
+		/.svn* \
+		/wp-admin* \
+		/wp-login.php \
+		/xmlrpc.php \
+		/actuator* \
+		/storage/logs/*
+
+	header {
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	# Preserve this order so SPA fallback cannot rewrite sensitive probes.
+	route {
+		# Railway health check
+		respond /health 200
+
+		respond @sensitive 404
+
+		# Keep normal React/Vite client-side routes working
+		try_files {path} {path}.html {path}/index.html /index.html
+
+		file_server {
+			hide .git
+			hide .env*
+			hide .gitignore
+			hide Caddyfile
+			hide Dockerfile
+		}
+	}
+}
