@@ -115,6 +115,10 @@ serving the first RAG request. File modification times do not invalidate the cac
 With `RAG_BUILD_MISSING=false`, a missing or stale index disables RAG quickly instead
 of parsing PDFs during application startup or a user request.
 
+Knowledge text is split with the embedding model tokenizer into 112-token
+windows with a 24-token overlap. Catalog specification pages also split at row
+boundaries so no chunk exceeds the model's 128-token input limit.
+
 After changing a knowledge PDF or the exported website content, rebuild the
 committed index:
 

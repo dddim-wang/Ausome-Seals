@@ -127,11 +127,114 @@ class CatalogSpecificationTests(unittest.TestCase):
 
         self.assertTrue(_is_specification_page(page))
 
-    def test_specification_page_is_kept_as_one_chunk(self):
+    def test_specification_page_is_split_on_rows_with_bounded_overlap(self):
         page = "ASC 骨架油封\n规 格 表\n" + ("ASC000400 40 52 8\n" * 200)
 
         self.assertTrue(_is_specification_page(page))
-        self.assertEqual(_split_page(page, preserve_table=True), [page])
+        chunks = _split_page(
+            page,
+            size=40,
+            overlap=8,
+            preserve_table=True,
+            token_counter=lambda value: len(value.split()) + 2,
+        )
+
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(len(chunk.split()) + 2 <= 40 for chunk in chunks))
+        self.assertTrue(all(chunk.startswith("ASC") for chunk in chunks[1:]))
+
+    def test_regular_page_uses_token_windows_instead_of_character_windows(self):
+        page = " ".join(f"word{index}" for index in range(80))
+
+        chunks = _split_page(
+            page,
+            size=30,
+            overlap=6,
+            token_counter=lambda value: len(value.split()) + 2,
+        )
+
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(len(chunk.split()) + 2 <= 30 for chunk in chunks))
+        self.assertTrue(set(chunks[0].split()) & set(chunks[1].split()))
+
+    def test_size_range_expands_to_four_adjacent_chunks_on_the_same_page(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex([0.99, 0.95, 0.3, 0.2, 0.1]),
+        )
+        knowledge_base._chunks = [KnowledgeChunk(
+            domain="ausome", language="zh", source="catalog.pdf", page=16,
+            text="ATA 双骨架油封规格表介绍",
+        )] + [
+            KnowledgeChunk(
+                domain="ausome", language="zh", source="catalog.pdf", page=17,
+                text=f"ATA 规格表\nATA00050{index} {50 + index} 70 10",
+            )
+            for index in range(4)
+        ]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search("ATA 有哪些尺寸？", "ausome", limit=5)
+
+        self.assertEqual([chunk.page for chunk in results[:4]], [17, 17, 17, 17])
+
+    def test_regular_question_limits_each_page_to_two_chunks(self):
+        knowledge_base = KnowledgeBase(
+            Path("."),
+            Path("unused.json"),
+            FakeEmbeddingIndex([0.95, 0.9, 0.85, 0.8]),
+        )
+        knowledge_base._chunks = [
+            KnowledgeChunk(
+                domain="oilseals", language="en", source="guide.pdf", page=3,
+                text=f"Oil seal installation guidance section {index}",
+            )
+            for index in range(3)
+        ] + [KnowledgeChunk(
+            domain="oilseals", language="en", source="guide.pdf", page=4,
+            text="Oil seal installation checklist",
+        )]
+        knowledge_base._token_counts = [
+            __import__("collections").Counter(_tokenize(chunk.text))
+            for chunk in knowledge_base._chunks
+        ]
+        knowledge_base._prepare_statistics(knowledge_base._chunks)
+
+        results = knowledge_base.search("oil seal installation", "oilseals", limit=4)
+
+        self.assertEqual(sum(chunk.page == 3 for chunk in results), 2)
+
+    def test_overlapping_order_code_rows_are_sent_only_once(self):
+        class OverlappingKnowledgeBase:
+            def search(self, _question, _domain, *, limit):
+                return [
+                    KnowledgeChunk(
+                        domain="ausome", language="zh",
+                        source="catalog.pdf", page=17,
+                        text=(
+                            "ATA 规格表\n"
+                            "ATA000500 50 65 10\n"
+                            "ATA100500 50 80 10"
+                        ),
+                    ),
+                    KnowledgeChunk(
+                        domain="ausome", language="zh",
+                        source="catalog.pdf", page=17,
+                        text="ATA100500 50 80 10\nATA000600 60 80 8",
+                    ),
+                ]
+
+        context = RagService(OverlappingKnowledgeBase()).retrieve(
+            "ATA 有哪些尺寸？"
+        )
+
+        self.assertEqual(context.prompt.count("ATA100500 50 80 10"), 1)
+
 
     def test_model_and_dimensions_prioritize_matching_specification_page(self):
         knowledge_base = KnowledgeBase(Path("."), Path("unused.json"))

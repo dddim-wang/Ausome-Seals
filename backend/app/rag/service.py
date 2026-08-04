@@ -15,7 +15,13 @@ from app.rag.embeddings import DEFAULT_EMBEDDING_MODEL, MultilingualEmbeddingInd
 
 logger = logging.getLogger(__name__)
 
-_INDEX_VERSION = 5
+_INDEX_VERSION = 6
+_EMBEDDING_CHUNK_TOKENS = 112
+_EMBEDDING_CHUNK_OVERLAP_TOKENS = 24
+_SIZE_RANGE_MARKERS = (
+    "尺寸", "规格", "有哪些", "多少种", "what sizes", "available sizes",
+    "size range", "dimensions",
+)
 _CJK_RE = re.compile(r"[\u3400-\u9fff]+")
 _WORD_RE = re.compile(r"[a-z0-9]+(?:[-_/][a-z0-9]+)*", re.IGNORECASE)
 _AUSOME_MODEL_RE = re.compile(
@@ -123,31 +129,85 @@ def _is_specification_page(text: str) -> bool:
 def _split_page(
     text: str,
     *,
-    size: int = 1400,
-    overlap: int = 220,
+    size: int = _EMBEDDING_CHUNK_TOKENS,
+    overlap: int = _EMBEDDING_CHUNK_OVERLAP_TOKENS,
     preserve_table: bool = False,
+    token_counter: Callable[[str], int | None] | None = None,
 ) -> list[str]:
-    # Catalog spreads contain several parallel order-number / d / D / b columns.
-    # Keep specification pages atomic so a code is not split from its dimensions.
-    if preserve_table:
-        return [text] if text else []
-    if len(text) <= size:
-        return [text] if text else []
+    """Split text into embedding-sized windows without silently truncating it."""
+    if not text:
+        return []
+    if size <= 0 or overlap < 0 or overlap >= size:
+        raise ValueError("chunk size must be positive and overlap smaller than size")
+
+    def estimated_count(value: str) -> int:
+        # This fallback intentionally over-counts punctuation and CJK characters.
+        # Production uses FastEmbed's exact tokenizer when embeddings are enabled.
+        units = re.findall(r"[\u3400-\u9fff]|[a-z0-9]+|[^\s]", value, re.IGNORECASE)
+        return len(units) + 2
+
+    def count(value: str) -> int:
+        if token_counter is not None:
+            measured = token_counter(value)
+            if measured is not None and measured > 0:
+                return measured
+        return estimated_count(value)
+
+    if count(text) <= size:
+        return [text]
+
+    def furthest_end(start: int, token_limit: int) -> int:
+        low, high = start + 1, len(text)
+        best = start + 1
+        while low <= high:
+            middle = (low + high) // 2
+            if count(text[start:middle]) <= token_limit:
+                best = middle
+                low = middle + 1
+            else:
+                high = middle - 1
+        return best
+
+    def overlap_start(end: int) -> int:
+        low, high = 0, end
+        best = end
+        while low <= high:
+            middle = (low + high) // 2
+            if count(text[middle:end]) <= overlap:
+                best = middle
+                high = middle - 1
+            else:
+                low = middle + 1
+        return best
 
     chunks: list[str] = []
     start = 0
     while start < len(text):
-        end = min(start + size, len(text))
+        end = furthest_end(start, size)
         if end < len(text):
-            boundary = max(text.rfind("\n", start + size // 2, end), text.rfind("。", start + size // 2, end))
+            # Tables should end on rows; prose prefers a sentence or paragraph.
+            boundary_floor = start + (end - start) // 2
+            boundary = max(
+                text.rfind("\n", boundary_floor, end),
+                text.rfind(chr(0x3002), boundary_floor, end),
+                text.rfind(". ", boundary_floor, end),
+            )
             if boundary > start:
-                end = boundary + 1
+                end = boundary + (
+                    0 if preserve_table and text[boundary] == "\n" else 1
+                )
         chunk = text[start:end].strip()
         if chunk:
             chunks.append(chunk)
         if end >= len(text):
             break
-        start = max(start + 1, end - overlap)
+        next_start = overlap_start(end)
+        if preserve_table:
+            # Never begin halfway through a product/specification row.
+            row_start = text.find("\n", next_start, end)
+            if row_start != -1:
+                next_start = row_start + 1
+        start = max(start + 1, next_start)
     return chunks
 
 
@@ -210,6 +270,8 @@ class KnowledgeBase:
         self.knowledge_dir = knowledge_dir
         self.cache_path = cache_path
         self.embedding_index = embedding_index
+        counter = getattr(embedding_index, "count_tokens", None)
+        self._embedding_token_counter = counter if callable(counter) else None
         self.build_missing = build_missing
         self._chunks: list[KnowledgeChunk] | None = None
         self._token_counts: list[Counter[str]] = []
@@ -274,13 +336,17 @@ class KnowledgeBase:
                             }
                         ):
                             continue
-                        chunks.append(KnowledgeChunk(
-                            domain=domain,
-                            language=language,
-                            source=path.name,
-                            page=int(item.get("page", 1)),
-                            text=text,
-                        ))
+                        for part in _split_page(
+                            text,
+                            token_counter=self._embedding_token_counter,
+                        ):
+                            chunks.append(KnowledgeChunk(
+                                domain=domain,
+                                language=language,
+                                source=path.name,
+                                page=int(item.get("page", 1)),
+                                text=part,
+                            ))
                 except (OSError, ValueError, TypeError):
                     logger.warning(
                         "Website RAG content is invalid and will be skipped: %s",
@@ -292,7 +358,11 @@ class KnowledgeBase:
             for page_number, page in enumerate(reader.pages, start=1):
                 text = _clean_text(page.extract_text() or "")
                 preserve_table = domain == "ausome" and _is_specification_page(text)
-                for part in _split_page(text, preserve_table=preserve_table):
+                for part in _split_page(
+                    text,
+                    preserve_table=preserve_table,
+                    token_counter=self._embedding_token_counter,
+                ):
                     chunks.append(KnowledgeChunk(
                         domain=domain,
                         language=_language_from_name(path.name),
@@ -436,14 +506,72 @@ class KnowledgeBase:
             reverse=True,
         )
         selected: list[KnowledgeChunk] = []
-        seen: set[tuple[str, int]] = set()
-        for _exact_priority, _score, index in scores:
+        selected_indices: set[int] = set()
+        page_counts: Counter[tuple[str, int]] = Counter()
+        is_size_range = (
+            bool(exact_models)
+            and not exact_order_codes
+            and any(marker in question.casefold() for marker in _SIZE_RANGE_MARKERS)
+        )
+        per_page_limit = 4 if is_size_range else 2
+
+        def select(index: int) -> None:
+            if index in selected_indices or len(selected) >= limit:
+                return
             chunk = self._chunks[index]
             identity = (chunk.source, chunk.page)
-            if identity in seen:
-                continue
+            if page_counts[identity] >= per_page_limit:
+                return
             selected.append(chunk)
-            seen.add(identity)
+            selected_indices.add(index)
+            page_counts[identity] += 1
+
+        if is_size_range:
+            def has_matching_order_row(index: int) -> bool:
+                return any(
+                    match.group("model").casefold() in exact_models
+                    and any(character.isdigit() for character in match.group(0))
+                    for match in _AUSOME_ORDER_CODE_RE.finditer(
+                        self._chunks[index].text
+                    )
+                )
+
+            ranked_anchor_index = next(
+                (index for _priority, _score, index in scores
+                 if has_matching_order_row(index)),
+                None,
+            )
+            if ranked_anchor_index is not None:
+                ranked_anchor = self._chunks[ranked_anchor_index]
+                anchor_index = next(
+                    index for index, chunk in enumerate(self._chunks)
+                    if (chunk.source, chunk.page) == (
+                        ranked_anchor.source, ranked_anchor.page
+                    )
+                    and has_matching_order_row(index)
+                )
+            else:
+                anchor_index = next((
+                    index
+                    for exact_priority, _score, index in scores
+                    if exact_priority
+                    and _is_specification_page(self._chunks[index].text)
+                ), None)
+            if anchor_index is not None:
+                anchor = self._chunks[anchor_index]
+                for adjacent_index in range(
+                    anchor_index,
+                    min(anchor_index + per_page_limit, len(self._chunks)),
+                ):
+                    adjacent = self._chunks[adjacent_index]
+                    if (adjacent.source, adjacent.page) != (
+                        anchor.source, anchor.page
+                    ):
+                        break
+                    select(adjacent_index)
+
+        for _exact_priority, _score, index in scores:
+            select(index)
             if len(selected) >= limit:
                 break
         return selected
@@ -495,9 +623,28 @@ class RagService:
         )
         excerpts = []
         references = []
-        for index, chunk in enumerate(chunks, start=1):
+        seen_order_code_lines: dict[tuple[str, int], set[str]] = {}
+        for chunk in chunks:
+            excerpt_text = chunk.text
+            page_identity = (chunk.source, chunk.page)
+            seen_lines = seen_order_code_lines.setdefault(page_identity, set())
+            unique_lines = []
+            for line in excerpt_text.splitlines():
+                has_order_code = _AUSOME_ORDER_CODE_RE.search(line) is not None
+                normalized_line = re.sub(r"\s+", " ", line).strip().casefold()
+                if has_order_code and normalized_line in seen_lines:
+                    continue
+                if has_order_code:
+                    seen_lines.add(normalized_line)
+                unique_lines.append(line)
+            excerpt_text = "\n".join(unique_lines).strip()
+            if not excerpt_text:
+                continue
             excerpt_limit = 6000 if _is_specification_page(chunk.text) else 1800
-            excerpts.append(f"Reference excerpt {index}\n{chunk.text[:excerpt_limit]}")
+            excerpts.append(
+                f"Reference excerpt {len(excerpts) + 1}\n"
+                f"{excerpt_text[:excerpt_limit]}"
+            )
             references.append(SourceReference(
                 source=chunk.source,
                 page=chunk.page,

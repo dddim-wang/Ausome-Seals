@@ -131,6 +131,20 @@ class MultilingualEmbeddingIndex:
             )
             return None
 
+    def count_tokens(self, text: str) -> int | None:
+        """Count tokens with the same tokenizer used to create embeddings."""
+        model = self._get_model()
+        if model is None:
+            return None
+        try:
+            return int(model.token_count(text))
+        except Exception:
+            logger.warning(
+                "Unable to count embedding tokens; using conservative chunking",
+                exc_info=True,
+            )
+            return None
+
     def _embed_query(self, text: str) -> list[float] | None:
         key = text.strip().lower()
         cached = self._query_vectors.get(key)
