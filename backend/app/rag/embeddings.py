@@ -44,6 +44,10 @@ class EmbeddableChunk(Protocol):
     source: str
     page: int
     text: str
+    context: str
+
+    @property
+    def retrieval_text(self) -> str: ...
 
 
 def _normalize(values: Sequence[float]) -> list[float]:
@@ -58,7 +62,7 @@ def _chunk_fingerprint(chunks: Sequence[EmbeddableChunk]) -> str:
     for chunk in chunks:
         digest.update(
             f"{chunk.domain}\0{chunk.language}\0{chunk.source}\0"
-            f"{chunk.page}\0{chunk.text}\0".encode("utf-8")
+            f"{chunk.page}\0{chunk.context}\0{chunk.text}\0".encode("utf-8")
         )
     return digest.hexdigest()
 
@@ -236,7 +240,7 @@ class MultilingualEmbeddingIndex:
                 return True
             vectors = self._read_cache(chunks)
             if vectors is None and (force_build or self.build_missing):
-                vectors = self._embed([chunk.text for chunk in chunks])
+                vectors = self._embed([chunk.retrieval_text for chunk in chunks])
                 if vectors is not None:
                     self._write_cache(chunks, vectors)
                     self._vector_fingerprint = fingerprint

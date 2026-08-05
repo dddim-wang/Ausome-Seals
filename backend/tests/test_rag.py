@@ -13,6 +13,8 @@ from app.rag.service import (
     KnowledgeBase,
     KnowledgeChunk,
     RagService,
+    _catalog_context,
+    _contextual_body_size,
     _is_specification_page,
     _split_page,
     _tokenize,
@@ -32,6 +34,7 @@ class FakeKnowledgeBase:
             source="Ausome_Catalog_EN.pdf" if domain == "ausome" else "Oilseal_EN.pdf",
             page=7,
             text="Reference text for the selected knowledge domain.",
+            context="Product series: ASC",
         )]
 
 
@@ -107,6 +110,7 @@ class RagRoutingTests(unittest.TestCase):
         self.assertEqual(context.domain, "ausome")
         self.assertEqual(knowledge_base.domain, "ausome")
         self.assertNotIn("Ausome_Catalog_EN.pdf", context.prompt)
+        self.assertNotIn("Product series: ASC", context.prompt)
         self.assertIn("Do not mention citations", context.prompt)
         self.assertIn("Never invent a model", context.prompt)
         self.assertIn("Answer supported questions directly", context.prompt)
@@ -114,6 +118,40 @@ class RagRoutingTests(unittest.TestCase):
 
 
 class CatalogSpecificationTests(unittest.TestCase):
+    def test_catalog_context_uses_product_family_and_header_without_page(self):
+        page = (
+            "Oil Seal ASC\n"
+            "Specification table\n"
+            "Ref.No. d D b\n"
+            "ASC000400 40 52 8"
+        )
+
+        context = _catalog_context(page)
+        chunk = KnowledgeChunk(
+            domain="ausome",
+            language="en",
+            source="Ausome_Catalog_EN.pdf",
+            page=8,
+            text="ASC000400 40 52 8",
+            context=context,
+        )
+
+        self.assertIn("Product series: ASC", context)
+        self.assertIn("Table header:", context)
+        self.assertIn("Ref.No. d D b", context)
+        self.assertNotIn("page", context.casefold())
+        self.assertTrue(chunk.retrieval_text.startswith(context))
+        self.assertEqual(chunk.text, "ASC000400 40 52 8")
+
+    def test_context_reserves_embedding_tokens_for_the_original_chunk(self):
+        size = _contextual_body_size(
+            "Product series: ASC\nTable header: Ref.No. d D b",
+            lambda value: len(value.split()) + 2,
+        )
+
+        self.assertGreaterEqual(size, 64)
+        self.assertLess(size, 112)
+
     def test_ocr_spaced_chinese_is_searchable_as_words(self):
         tokens = _tokenize("心 规 格 表\n订 货 号 内 径 外 径 宽 度")
 

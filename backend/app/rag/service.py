@@ -15,9 +15,10 @@ from app.rag.embeddings import DEFAULT_EMBEDDING_MODEL, MultilingualEmbeddingInd
 
 logger = logging.getLogger(__name__)
 
-_INDEX_VERSION = 6
+_INDEX_VERSION = 7
 _EMBEDDING_CHUNK_TOKENS = 112
 _EMBEDDING_CHUNK_OVERLAP_TOKENS = 24
+_MIN_CONTEXTUAL_BODY_TOKENS = 64
 _SIZE_RANGE_MARKERS = (
     "尺寸", "规格", "有哪些", "多少种", "what sizes", "available sizes",
     "size range", "dimensions",
@@ -81,6 +82,12 @@ class KnowledgeChunk:
     source: str
     page: int
     text: str
+    context: str = ""
+
+    @property
+    def retrieval_text(self) -> str:
+        """Text used for retrieval; the answer prompt still receives ``text`` only."""
+        return f"{self.context}\n{self.text}" if self.context else self.text
 
 
 @dataclass(frozen=True)
@@ -124,6 +131,75 @@ def _is_specification_page(text: str) -> bool:
     # Some OCR pages lose the table heading while retaining dozens of order codes.
     has_dense_order_codes = len(_AUSOME_ORDER_CODE_RE.findall(text)) >= 4
     return has_heading or has_dense_order_codes
+
+
+def _catalog_product_families(text: str) -> tuple[str, ...]:
+    """Extract stable Ausome product-family codes without generating new claims."""
+    families: list[str] = []
+    for match in _AUSOME_MODEL_RE.finditer(text):
+        family = match.group(0).upper()
+        if family not in families:
+            families.append(family)
+    # A long list is normally the contents page or a generic comparison table,
+    # not context that should be attached to one product chunk.
+    return tuple(families) if len(families) <= 6 else ()
+
+
+def _catalog_table_header(text: str) -> str:
+    """Recover a short table header from the page while excluding specification rows."""
+    lines = [re.sub(r"\s+", " ", line).strip(" |") for line in text.splitlines()]
+    marker_index = next((
+        index
+        for index, line in enumerate(lines)
+        if any(
+            marker in re.sub(r"\s+", "", line).casefold()
+            for marker in _SPECIFICATION_MARKERS
+        )
+    ), None)
+    if marker_index is None:
+        return ""
+
+    candidates: list[str] = []
+    for line in lines[marker_index:marker_index + 4]:
+        if not line:
+            continue
+        order_code = _AUSOME_ORDER_CODE_RE.search(line)
+        if order_code:
+            line = line[:order_code.start()].strip(" |")
+        if line and line not in candidates:
+            candidates.append(line)
+        if order_code:
+            break
+    header = " | ".join(candidates)
+    return header[:240].rstrip()
+
+
+def _catalog_context(text: str) -> str:
+    families = _catalog_product_families(text)
+    table_header = _catalog_table_header(text)
+    context = []
+    if families:
+        context.append(f"Product series: {', '.join(families)}")
+    if table_header:
+        context.append(f"Table header: {table_header}")
+    return "\n".join(context)
+
+
+def _contextual_body_size(
+    context: str,
+    token_counter: Callable[[str], int | None] | None,
+) -> int:
+    if not context:
+        return _EMBEDDING_CHUNK_TOKENS
+    context_tokens = token_counter(context) if token_counter is not None else None
+    if context_tokens is None or context_tokens <= 0:
+        context_tokens = len(re.findall(
+            r"[\u3400-\u9fff]|[a-z0-9]+|[^\s]", context, re.IGNORECASE,
+        )) + 2
+    return max(
+        _MIN_CONTEXTUAL_BODY_TOKENS,
+        _EMBEDDING_CHUNK_TOKENS - context_tokens,
+    )
 
 
 def _split_page(
@@ -358,8 +434,14 @@ class KnowledgeBase:
             for page_number, page in enumerate(reader.pages, start=1):
                 text = _clean_text(page.extract_text() or "")
                 preserve_table = domain == "ausome" and _is_specification_page(text)
+                is_catalog = domain == "ausome" and "catalog" in path.name.casefold()
+                context = _catalog_context(text) if is_catalog else ""
                 for part in _split_page(
                     text,
+                    size=_contextual_body_size(
+                        context,
+                        self._embedding_token_counter,
+                    ),
                     preserve_table=preserve_table,
                     token_counter=self._embedding_token_counter,
                 ):
@@ -369,6 +451,7 @@ class KnowledgeBase:
                         source=path.name,
                         page=page_number,
                         text=part,
+                        context=context,
                     ))
 
         self.cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -398,7 +481,9 @@ class KnowledgeBase:
                     )
                 chunks = self._build(paths, fingerprint)
             self._chunks = chunks
-            self._token_counts = [Counter(_tokenize(chunk.text)) for chunk in chunks]
+            self._token_counts = [
+                Counter(_tokenize(chunk.retrieval_text)) for chunk in chunks
+            ]
             self._prepare_statistics(chunks)
 
     def _prepare_statistics(self, chunks: list[KnowledgeChunk]) -> None:
@@ -447,7 +532,7 @@ class KnowledgeBase:
                 document_frequency = domain_df.get(token, 0)
                 inverse_frequency = math.log(1 + (domain_size - document_frequency + 0.5) / (document_frequency + 0.5))
                 score += query_weight * inverse_frequency * ((frequency * 2.2) / (frequency + length_norm))
-            lowered_chunk = chunk.text.lower()
+            lowered_chunk = chunk.retrieval_text.lower()
             score += sum(22.0 for model in exact_models if model in lowered_chunk)
             score += sum(36.0 for code in exact_order_codes if code in lowered_chunk)
             if exact_models and _is_specification_page(chunk.text):
