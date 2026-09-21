@@ -43,9 +43,9 @@ import factory6 from "./assets/factory/factory6.webp";
 import factory7 from "./assets/factory/factory7.webp";
 import factory8 from "./assets/factory/factory8.webp";
 import factory9 from "./assets/factory/factory9.webp";
+import factory10 from "./assets/factory/factory10.webp";
 
 // Lab images
-import lab1 from "./assets/factory/lab1.webp";
 import lab2 from "./assets/factory/lab2.webp";
 import lab3 from "./assets/factory/lab3.webp";
 
@@ -84,8 +84,8 @@ const productImages = [product3, product1, product2];
 const catalogCn = "/catalogs/Ausome_Seals_Oil_Seal_Catalog_CN.pdf";
 const catalogEn = "/catalogs/Ausome_Seals_Oil_Seal_Catalog_EN.pdf";
 
-const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9];
-const labImages = [lab1, lab2, lab3];
+const factoryImages = [factory1, factory2, factory3, factory4, factory5, factory6, factory7, factory8, factory9, factory10];
+const labImages = [lab2, lab3];
 
 const coopImages = [
   coop1,
